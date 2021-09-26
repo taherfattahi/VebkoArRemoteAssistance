@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
+    android:gravity="bottom"
+    android:padding="20dp">
+
+    <!--静音-->
+
+    <!--挂断-->
+
+    <ImageView
+        android:id="@+id/wr_switch_mute"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:src="@drawable/webrtc_btn_voice_mute"
+        android:drawablePadding="5dp"
+        android:gravity="center_horizontal"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/wr_control_text_size"
+        fab:layout_constraintBottom_toBottomOf="parent"
+        fab:layout_constraintEnd_toStartOf="@+id/guideline"
+        fab:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/wr_switch_bluetooth"
+        android:layout_width="57dp"
+        android:layout_height="57dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:gravity="center_horizontal"
+        android:scaleType="fitCenter"
+        android:src="@drawable/bluetooth_circle_round_default"
+        fab:layout_constraintBottom_toBottomOf="parent"
+        fab:layout_constraintEnd_toStartOf="@+id/guideline3"
+        fab:layout_constraintStart_toStartOf="@+id/guideline" />
+
+    <ImageView
+        android:id="@+id/wr_switch_hang_up"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/webrtc_cancel"
+        android:drawablePadding="5dp"
+        android:gravity="center_horizontal"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/wr_control_text_size"
+        fab:layout_constraintBottom_toBottomOf="parent"
+        fab:layout_constraintEnd_toStartOf="@+id/guideline2"
+        fab:layout_constraintStart_toStartOf="@+id/guideline3" />
+
+<!--    <TextView-->
+<!--        android:id="@+id/wr_switch_camera"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_alignParentEnd="true"-->
+<!--        android:layout_alignParentRight="true"-->
+<!--        android:drawablePadding="5dp"-->
+<!--        android:drawableTop="@drawable/cancel"-->
+<!--        android:gravity="center_horizontal"-->
+<!--        android:text="Clear"-->
+<!--        android:textColor="@android:color/white"-->
+<!--        android:textSize="@dimen/wr_control_text_size" />-->
+
+    <com.getbase.floatingactionbutton.FloatingActionsMenu
+        android:id="@+id/famSetting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="-12dp"
+        fab:fab_addButtonColorNormal="@color/white"
+        fab:fab_addButtonColorPressed="@color/white_pressed"
+        fab:fab_addButtonPlusIconColor="@color/half_black"
+        fab:fab_labelStyle="@style/menu_labels_style"
+        fab:layout_constraintBottom_toBottomOf="parent"
+        fab:layout_constraintEnd_toEndOf="parent"
+        fab:layout_constraintStart_toStartOf="@+id/guideline2">
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/faColorPicker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:fab_colorNormal="@color/white"
+            fab:fab_colorPressed="@color/white_pressed1"
+            fab:fab_icon="@drawable/color_picker" />
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/faClearDraw"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:fab_colorNormal="@color/white"
+            fab:fab_colorPressed="@color/white_pressed1"
+            fab:fab_icon="@drawable/trash_bin" />
+
+    </com.getbase.floatingactionbutton.FloatingActionsMenu>
+
+<!--    <TextView-->
+<!--        android:id="@+id/txtSetting"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="Setting"-->
+<!--        android:textColor="#FFFFFF"-->
+<!--        android:textSize="16sp"-->
+<!--        fab:layout_constraintBottom_toBottomOf="parent"-->
+<!--        fab:layout_constraintEnd_toEndOf="@+id/famSetting"-->
+<!--        fab:layout_constraintStart_toStartOf="@+id/famSetting" />-->
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        fab:layout_constraintGuide_percent="0.25" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        fab:layout_constraintGuide_percent="0.7712895" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        fab:layout_constraintGuide_percent="0.5" />
+
+    <!--    <TextView-->
+<!--        android:id="@+id/wr_hand_free"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_alignParentEnd="true"-->
+<!--        android:layout_alignParentRight="true"-->
+<!--        android:drawablePadding="5dp"-->
+<!--        android:drawableTop="@drawable/webrtc_btn_voice_hand_free"-->
+<!--        android:gravity="center_horizontal"-->
+<!--        android:text="@string/webrtc_switch_camera"-->
+<!--        android:textColor="@android:color/white"-->
+<!--        android:textSize="@dimen/wr_control_text_size"-->
+<!--        android:visibility="gone" />-->
+
+</androidx.constraintlayout.widget.ConstraintLayout>

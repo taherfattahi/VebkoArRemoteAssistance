@@ -1,0 +1,28 @@
+<resources>
+
+    <style name="Webrtc.AppTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorPrimary">@color/webrtc_colorPrimary</item>
+        <item name="colorPrimaryDark">@color/webrtc_colorPrimaryDark</item>
+        <item name="colorAccent">@color/webrtc_colorAccent</item>
+        <item name="android:navigationBarColor">@color/webrtc_colorPrimary</item>
+    </style>
+
+    <style name="Webrtc.AppTheme.NoActionBar">
+        <item name="colorPrimary">@color/webrtc_colorPrimary</item>
+        <item name="colorPrimaryDark">@color/webrtc_colorPrimaryDark</item>
+        <item name="colorAccent">@color/webrtc_colorAccent</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:navigationBarColor">@color/webrtc_colorPrimary</item>
+    </style>
+
+    <style name="Webrtc.AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+    <style name="Webrtc.AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+
+
+    <style name="menu_labels_style">
+        <item name="android:background">@drawable/fab_label_background</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+</resources>

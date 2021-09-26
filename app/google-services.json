@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "498843559182",
+    "project_id": "vebkofirebase",
+    "storage_bucket": "vebkofirebase.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:498843559182:android:357b608b19b63050f4e35f",
+        "android_client_info": {
+          "package_name": "ir.vebko.www.vebkoarremoteassistance"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "498843559182-6ulpmclhcnk5c82ptu296dk31gf8jj8o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCl4G4n8gLSNxtEbzooaarvBErsqNMTVd8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "498843559182-6ulpmclhcnk5c82ptu296dk31gf8jj8o.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
