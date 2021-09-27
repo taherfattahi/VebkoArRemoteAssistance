@@ -146,22 +146,22 @@ public class NodejsActivity extends AppCompatActivity {
         lastName = sharedPrefs.getString("lastName", null);
         phoneNumber = sharedPrefs.getString("phoneNumber", null);
 
-        adapter = new ContactsAdapter(contacts);
+        adapter = new ContactsAdapter(contacts, this);
         rvDestinationUniqueId.setAdapter(adapter);
         rvDestinationUniqueId.setLayoutManager(new LinearLayoutManager(this));
 
-        rvDestinationUniqueId.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), rvDestinationUniqueId, new RecyclerTouchListener.ClickListener() {
-            @Override
-            public void onClick(View view, int position) {
-//                speech(countries_list_code[position]);
-                edtRemoteID.setText(contacts.get(position).getName());
-            }
-
-            @Override
-            public void onLongClick(View view, int position) {
-
-            }
-        }));
+//        rvDestinationUniqueId.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), rvDestinationUniqueId, new RecyclerTouchListener.ClickListener() {
+//            @Override
+//            public void onClick(View view, int position) {
+////                speech(countries_list_code[position]);
+//                edtRemoteID.setText(contacts.get(position).getName());
+//            }
+//
+//            @Override
+//            public void onLongClick(View view, int position) {
+//
+//            }
+//        }));
 
         mTitleRandomUniqueId.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -254,6 +254,8 @@ public class NodejsActivity extends AppCompatActivity {
             }
         });
 
+
+
 //        // Create the Handler object (on the main thread by default)
 //        Handler handler = new Handler();
 //        // Define the code block to be executed
@@ -271,6 +273,45 @@ public class NodejsActivity extends AppCompatActivity {
 //        handler.post(runnableCode);
 
 
+    }
+
+    public void addDestinationUniueIdToTextView(int position){
+        edtRemoteID.setText(contacts.get(position).getName());
+    }
+
+    public void addContactCustomName(String customName, int position){
+
+        JSONObject jsonObjectProfile = new JSONObject();
+        try {
+            jsonObjectProfile.put("myRandomUniqueIdProfile", randomUniqueId);
+            jsonObjectProfile.put("destinationRandomUniqueIdProfile", contacts.get(position).getName());
+            jsonObjectProfile.put("myCustomName", customName);
+            jsonObjectProfile.put("destinationCustomName", "");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        AndroidNetworking.patch("http://192.168.0.13:3000/api/Contact/updatecontactcustomname")
+                .addJSONObjectBody(jsonObjectProfile) // posting json
+                .setTag("UpdateContactCustomName")
+                .setPriority(Priority.HIGH)
+                .build()
+                .getAsJSONObject(new JSONObjectRequestListener() {
+                    @Override
+                    public void onResponse(JSONObject jsonObject) {
+                        try {
+                            contacts.get(position).setMyCustomName(jsonObject.getString("myCustomName"));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        adapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onError(ANError anError) {
+
+                    }
+                });
     }
 
 
@@ -354,14 +395,6 @@ public class NodejsActivity extends AppCompatActivity {
 
 
     public void getContactFromServer(String myRandomUniqueId) {
-
-//        [
-//        {
-//            "id": "c237b42e-fe80-49f1-9dc9-59062d3464f7",
-//                "myRandomUniqueIdProfile": "4b2a4c12",
-//                "destinationRandomUniqueIdProfile": "9044c589"
-//        }
-//]
         AndroidNetworking.get("http://192.168.0.13:3000/api/Contact")
                 .addQueryParameter("randomUniqueIdProfile", myRandomUniqueId) // posting json
                 .setTag("GetContact")
@@ -378,10 +411,12 @@ public class NodejsActivity extends AppCompatActivity {
                                 if (jsonObject.getString("myRandomUniqueIdProfile").equals(randomUniqueId)) {
                                     Contact contact = new Contact();
                                     contact.setName(jsonObject.getString("destinationRandomUniqueIdProfile"));
+                                    contact.setMyCustomName(jsonObject.getString("myCustomName"));
                                     contacts.add(contact);
                                 } else {
                                     Contact contact = new Contact();
                                     contact.setName(jsonObject.getString("myRandomUniqueIdProfile"));
+                                    contact.setMyCustomName(jsonObject.getString("destinationCustomName"));
                                     contacts.add(contact);
                                 }
 

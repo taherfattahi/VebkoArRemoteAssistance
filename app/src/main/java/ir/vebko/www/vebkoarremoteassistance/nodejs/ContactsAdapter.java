@@ -1,12 +1,16 @@
 package ir.vebko.www.vebkoarremoteassistance.nodejs;
 
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -17,10 +21,17 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
 
     // ... constructor and member variables
     private List<Contact> mContacts;
+    private NodejsActivity nodejsActivity;
+    private Dialog dialog;
+    private Button btnAggreeDialog;
+    private Button btnCncelDialog;
+    private EditText edtCustomName;
+    private int recyclerClickPosition;
 
     // Pass in the contact array into the constructor
-    public ContactsAdapter(List<Contact> contacts) {
+    public ContactsAdapter(List<Contact> contacts, NodejsActivity nodejsActivity) {
         mContacts = contacts;
+        this.nodejsActivity = nodejsActivity;
     }
 
     // Usually involves inflating a layout from XML and returning the holder
@@ -34,6 +45,28 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
 
         // Return a new holder instance
         ViewHolder viewHolder = new ViewHolder(contactView);
+
+        dialog = new Dialog(nodejsActivity); // Context, this, etc.
+        dialog.setContentView(R.layout.dialog_layout);
+        btnAggreeDialog = dialog.findViewById(R.id.btnAggreeDialog);
+        btnCncelDialog = dialog.findViewById(R.id.btnCncelDialog);
+        edtCustomName = dialog.findViewById(R.id.edtCustomName);
+
+        btnAggreeDialog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                nodejsActivity.addContactCustomName(edtCustomName.getText().toString(), recyclerClickPosition);
+                dialog.dismiss();
+            }
+        });
+
+        btnCncelDialog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
         return viewHolder;
     }
 
@@ -47,13 +80,25 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
         TextView textView = holder.nameTextView;
         textView.setText(contact.getName());
 
-//        Button button = holder.messageButton;
-//        button.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//            }
-//        });
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                nodejsActivity.addDestinationUniueIdToTextView(position);
+            }
+        });
+
+        TextView txtAddCustomName = holder.txtAddCustomName;
+        txtAddCustomName.setText(contact.getMyCustomName());
+
+
+        Button button = holder.btnAddCustomName;
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.show();
+                recyclerClickPosition = position;
+            }
+        });
 //        button.setText(contact.isOnline() ? "Message" : "Offline");
 //        button.setEnabled(contact.isOnline());
     }
@@ -70,7 +115,8 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
         // Your holder should contain a member variable
         // for any view that will be set as you render a row
         public TextView nameTextView;
-//        public Button messageButton;
+        public TextView txtAddCustomName;
+        public Button btnAddCustomName;
 
         // We also create a constructor that accepts the entire item row
         // and does the view lookups to find each subview
@@ -80,7 +126,8 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
             super(itemView);
 
             nameTextView = (TextView) itemView.findViewById(R.id.contact_name);
-//            messageButton = (Button) itemView.findViewById(R.id.btnAddItem);
+            txtAddCustomName = itemView.findViewById(R.id.txtAddCustomName);
+            btnAddCustomName = (Button) itemView.findViewById(R.id.btnAddCustomName);
         }
     }
 }
