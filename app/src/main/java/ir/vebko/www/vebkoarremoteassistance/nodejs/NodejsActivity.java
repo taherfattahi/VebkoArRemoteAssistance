@@ -7,7 +7,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
@@ -29,6 +32,7 @@ import com.androidnetworking.common.Priority;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONArrayRequestListener;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
+import com.dds.webrtclib.ui.ChatSingleActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
@@ -40,8 +44,18 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import ir.alirezabdn.wp7progress.WP7ProgressBar;
 import ir.vebko.www.vebkoarremoteassistance.R;
@@ -58,18 +72,19 @@ public class NodejsActivity extends AppCompatActivity {
 
     public String FCM_TOKEN = null;
 
-    public String randomUniqueId;
-    public String imeiUniqueID;
-    public String tokenRegistrationFCM;
-    public String firstName;
-    public String lastName;
-    public String phoneNumber;
+    public String randomUniqueId = "";
+    public String imeiUniqueID = "";
+    public String tokenRegistrationFCM = "";
+    public String firstName = "";
+    public String lastName = "";
+    public String phoneNumber = "";
 
 
     private String signalIp = "ws://185.208.172.104:3000/ws";
 
     private Button btnArCore;
     private Button btnVuforia;
+    private Button btnRetry, btnProfile;
 
     private Toolbar toolbar;
     private TextView mTitleRandomUniqueId;
@@ -92,12 +107,23 @@ public class NodejsActivity extends AppCompatActivity {
 
         initView();
 
-        if (imeiUniqueID == null) {
-            addProfileToServer(getUniqueID());
+        if (isConnected()) {
+            btnRetry.setVisibility(View.GONE);
+            progressBar.setVisibility(View.VISIBLE);
+            progressBar.showProgressBar();
+            if (imeiUniqueID == null) {
+                addProfileToServer(getUniqueID());
+            } else {
+                getProfileFromServer(imeiUniqueID);
+                getContactFromServer(randomUniqueId);
+            }
         } else {
-            getProfileFromServer(imeiUniqueID);
-            getContactFromServer(randomUniqueId);
+            btnRetry.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.GONE);
+            progressBar.hideProgressBar();
+            Toast.makeText(getApplicationContext(), "please check your connection", Toast.LENGTH_SHORT).show();
         }
+
 
     }
 
@@ -108,11 +134,10 @@ public class NodejsActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.prgToolbar);
         btnArCore = findViewById(R.id.btnArCore);
         btnVuforia = findViewById(R.id.btnVuforia);
+        btnRetry = findViewById(R.id.btnRetry);
+        btnProfile = findViewById(R.id.btnProfile);
         edtRemoteID = findViewById(R.id.edtRemoteID);
         rvDestinationUniqueId = (RecyclerView) findViewById(R.id.rvDestinationUniqueId);
-
-        progressBar.setVisibility(View.VISIBLE);
-        progressBar.showProgressBar();
 
         randomUniqueId = sharedPrefs.getString("randomUniqueId", null);
         imeiUniqueID = sharedPrefs.getString(PREF_IMEI_UNIQUE_ID, null);
@@ -137,10 +162,6 @@ public class NodejsActivity extends AppCompatActivity {
 
             }
         }));
-
-
-//        mTitle.setText(randomUniqueId);
-
 
         mTitleRandomUniqueId.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -176,12 +197,78 @@ public class NodejsActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (!checkPermission()) {
                     requestPermission();
-                }else {
+                } else {
                     Intent intent = new Intent(getApplicationContext(), ImagePlayback.class);
                     startActivity(intent);
                 }
             }
         });
+
+        btnRetry.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                btnRetry.setEnabled(false);
+                if (isConnected()) {
+                    btnRetry.setVisibility(View.GONE);
+                    progressBar.setVisibility(View.VISIBLE);
+                    progressBar.showProgressBar();
+                    if (imeiUniqueID == null) {
+                        addProfileToServer(getUniqueID());
+                    } else {
+                        getProfileFromServer(imeiUniqueID);
+                        getContactFromServer(randomUniqueId);
+                    }
+                } else {
+                    btnRetry.setVisibility(View.VISIBLE);
+                    progressBar.setVisibility(View.GONE);
+                    progressBar.hideProgressBar();
+                    Toast.makeText(getApplicationContext(), "please check your connection", Toast.LENGTH_SHORT).show();
+                }
+                btnRetry.setEnabled(true);
+            }
+        });
+
+        btnProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                btnProfile.setEnabled(false);
+                if (isConnected()) {
+                    randomUniqueId = sharedPrefs.getString("randomUniqueId", null);
+                    imeiUniqueID = sharedPrefs.getString(PREF_IMEI_UNIQUE_ID, null);
+                    tokenRegistrationFCM = sharedPrefs.getString("tokenRegistrationFCM", null);
+                    firstName = sharedPrefs.getString("firstName", null);
+                    lastName = sharedPrefs.getString("lastName", null);
+                    phoneNumber = sharedPrefs.getString("phoneNumber", null);
+
+                    Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
+                    intent.putExtra("randomUniqueId", randomUniqueId);
+                    intent.putExtra("imeiUniqueID", imeiUniqueID);
+                    intent.putExtra("firstName", firstName);
+                    intent.putExtra("lastName", lastName);
+                    intent.putExtra("phoneNumber", phoneNumber);
+                    startActivity(intent);
+                }else{
+                    Toast.makeText(getApplicationContext(), "please check your connection", Toast.LENGTH_SHORT).show();
+                }
+                btnProfile.setEnabled(true);
+            }
+        });
+
+//        // Create the Handler object (on the main thread by default)
+//        Handler handler = new Handler();
+//        // Define the code block to be executed
+//        Runnable runnableCode = new Runnable() {
+//            @Override
+//            public void run() {
+//                // Do something here on the main thread
+//                Log.d("Handlers", "Called on main thread");
+//                // Repeat this the same runnable code block again another 2 seconds
+//                // 'this' is referencing the Runnable object
+//                handler.postDelayed(this, 10000);
+//            }
+//        };
+//        // Start the initial runnable task by posting through the handler
+//        handler.post(runnableCode);
 
 
     }
@@ -193,7 +280,7 @@ public class NodejsActivity extends AppCompatActivity {
 //                "232343",
 //                true, edtRemoteID.getText().toString().trim(), imeiUniqueID, "jsonObject.getString(\"tokenRegistrationFCM\")", firstName, lastName, phoneNumber);
 
-        try{
+        try {
             switch (ArCoreApk.getInstance().requestInstall(this, !installRequested)) {
                 case INSTALL_REQUESTED:
                     installRequested = true;
@@ -201,7 +288,7 @@ public class NodejsActivity extends AppCompatActivity {
                 case INSTALLED:
                     break;
             }
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
@@ -240,6 +327,18 @@ public class NodejsActivity extends AppCompatActivity {
 
     }
 
+    public boolean isConnected() {
+        String command = "ping -c 1 google.com";
+        try {
+            return Runtime.getRuntime().exec(command).waitFor() == 0;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public String getUniqueID() {
         imeiUniqueID = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
 
@@ -252,7 +351,6 @@ public class NodejsActivity extends AppCompatActivity {
 
         return imeiUniqueID;
     }
-
 
 
     public void getContactFromServer(String myRandomUniqueId) {
@@ -273,15 +371,15 @@ public class NodejsActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONArray jsonArray) {
 
-                        for (int i=0; i<jsonArray.length(); i++){
+                        for (int i = 0; i < jsonArray.length(); i++) {
                             try {
                                 JSONObject jsonObject = jsonArray.getJSONObject(i);
 
-                                if (jsonObject.getString("myRandomUniqueIdProfile").equals(randomUniqueId)){
+                                if (jsonObject.getString("myRandomUniqueIdProfile").equals(randomUniqueId)) {
                                     Contact contact = new Contact();
                                     contact.setName(jsonObject.getString("destinationRandomUniqueIdProfile"));
                                     contacts.add(contact);
-                                }else{
+                                } else {
                                     Contact contact = new Contact();
                                     contact.setName(jsonObject.getString("myRandomUniqueIdProfile"));
                                     contacts.add(contact);
@@ -372,12 +470,12 @@ public class NodejsActivity extends AppCompatActivity {
                 JSONObject jsonObjectProfile = new JSONObject();
 
                 try {
-                    jsonObjectProfile.put("randomUniqueId", "");
+                    jsonObjectProfile.put("randomUniqueId", randomUniqueId);
                     jsonObjectProfile.put("imei", myImeiUniqueID);
                     jsonObjectProfile.put("tokenRegistrationFCM", FCM_TOKEN);
-                    jsonObjectProfile.put("firstName", "");
-                    jsonObjectProfile.put("lastName", "");
-                    jsonObjectProfile.put("phoneNumber", "");
+                    jsonObjectProfile.put("firstName", firstName);
+                    jsonObjectProfile.put("lastName", lastName);
+                    jsonObjectProfile.put("phoneNumber", phoneNumber);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

@@ -33,7 +33,7 @@ public class SplashScreen extends AppCompatActivity {
 //                    if (!checkPermission()) {
 //                        requestPermission();
 //                    }else {
-                    sleep(1500);
+                    sleep(1800);
                     Intent intent = new Intent(getApplicationContext(), NodejsActivity.class);
                     startActivity(intent);
                     finish();

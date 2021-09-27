@@ -11,6 +11,14 @@
         android:layout_height="wrap_content"
         android:background="@color/main_color"
         android:minHeight="?android:attr/actionBarSize"
+        android:contentInsetLeft="0dp"
+        android:contentInsetStart="0dp"
+        app:contentInsetLeft="0dp"
+        app:contentInsetStart="0dp"
+        android:contentInsetRight="0dp"
+        android:contentInsetEnd="0dp"
+        app:contentInsetRight="0dp"
+        app:contentInsetEnd="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -23,14 +31,37 @@
             app:indicatorColor="#FF1744"
             app:interval="50"/>
 
+        <Button
+            android:id="@+id/btnRetry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_marginLeft="8dp"
+            android:background="@drawable/button_background"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:text="Retry" />
+
         <TextView
             android:id="@+id/toolbar_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_gravity="start"
+            android:layout_marginLeft="8dp"
             android:textColor="#5D4037"
             android:textStyle="bold"
             android:textSize="20sp"/>
+
+        <Button
+            android:id="@+id/btnProfile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginRight="8dp"
+            android:background="@drawable/button_background"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:text="Profile" />
 
     </androidx.appcompat.widget.Toolbar>
 
@@ -73,6 +104,8 @@
         android:id="@+id/edtRemoteID"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
         android:hint="add remote ID"
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
