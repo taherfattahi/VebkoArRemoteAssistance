@@ -61,7 +61,6 @@ dependencies {
 
 //    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.4'
 
-
     // Provides ARCore Session and related resources.
     implementation 'com.google.ar:core:1.27.0'
     // Provides ArFragment, and other UX resources.

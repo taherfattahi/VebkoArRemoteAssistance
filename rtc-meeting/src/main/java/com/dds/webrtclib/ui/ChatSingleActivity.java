@@ -124,12 +124,12 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
     public String lastName;
     public String phoneNumber;
 
-    public static void openActivity(Activity activity, boolean videoEnable, String randomUniqueId, String imei, String tokneRegistraionFCM, String firstName, String lastName, String phoneNumber) {
+    public static void openActivity(Activity activity, boolean videoEnable, String randomUniqueId, String imei, String destinationTokenRegistrationFCM, String firstName, String lastName, String phoneNumber) {
         Intent intent = new Intent(activity, ChatSingleActivity.class);
         intent.putExtra("videoEnable", videoEnable);
         intent.putExtra("randomUniqueId", randomUniqueId);
         intent.putExtra("imei", imei);
-        intent.putExtra("tokneRegistraionFCM", tokneRegistraionFCM);
+        intent.putExtra("destinationTokenRegistrationFCM", destinationTokenRegistrationFCM);
         intent.putExtra("firstName", firstName);
         intent.putExtra("lastName", lastName);
         intent.putExtra("phoneNumber", phoneNumber);

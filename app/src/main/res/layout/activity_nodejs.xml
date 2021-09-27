@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.dds.nodejs.NodejsActivity">
+    android:layout_height="match_parent">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_top"
@@ -38,12 +37,13 @@
     <Button
         android:id="@+id/btnArCore"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="4dp"
-        android:layout_marginBottom="8dp"
-        android:text="ArCore"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:textAllCaps="false"
+        android:background="@drawable/button_background"
+        android:textColor="@color/white"
+        android:text="Remote Assistance"
         app:layout_constraintEnd_toStartOf="@+id/guideline4"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edtRemoteID" />
@@ -51,16 +51,16 @@
     <Button
         android:id="@+id/btnVuforia"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
-        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:text="Vuforia"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:textAllCaps="false"
+        android:background="@drawable/button_background"
+        android:textColor="@color/white"
+        android:text="Catalog"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline4"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar_top" />
+        app:layout_constraintTop_toTopOf="@+id/btnArCore" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline4"
@@ -73,12 +73,20 @@
         android:id="@+id/edtRemoteID"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="4dp"
         android:hint="add remote ID"
         android:inputType="textPersonName"
-        app:layout_constraintEnd_toStartOf="@+id/guideline4"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar_top" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvDestinationUniqueId"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnArCore" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

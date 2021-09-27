@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <dimen name="button_radius_large">5dp</dimen>
+
     <dimen name="menu_title">22sp</dimen>
     <dimen name="menu_title_padding">14dp</dimen>
     <dimen name="menu_activities_list_padding_left">24dp</dimen>

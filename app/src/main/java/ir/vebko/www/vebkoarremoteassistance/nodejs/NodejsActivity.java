@@ -21,19 +21,26 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.common.Priority;
 import com.androidnetworking.error.ANError;
+import com.androidnetworking.interfaces.JSONArrayRequestListener;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.button.MaterialButton;
+import com.google.ar.core.ArCoreApk;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 import ir.alirezabdn.wp7progress.WP7ProgressBar;
@@ -69,26 +76,28 @@ public class NodejsActivity extends AppCompatActivity {
     private WP7ProgressBar progressBar;
 
     private boolean isGetDataFromServer;
+    private boolean installRequested;
 
+    private ArrayList<Contact> contacts = new ArrayList<>();
+    private RecyclerView rvDestinationUniqueId;
+    private ContactsAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nodejs);
 
-
         sharedPrefs = this.getSharedPreferences(PREF_IMEI_UNIQUE_ID, Context.MODE_PRIVATE);
         imeiUniqueID = sharedPrefs.getString(PREF_IMEI_UNIQUE_ID, null);
 
         initView();
 
-
         if (imeiUniqueID == null) {
             addProfileToServer(getUniqueID());
         } else {
             getProfileFromServer(imeiUniqueID);
+            getContactFromServer(randomUniqueId);
         }
-
 
     }
 
@@ -100,6 +109,7 @@ public class NodejsActivity extends AppCompatActivity {
         btnArCore = findViewById(R.id.btnArCore);
         btnVuforia = findViewById(R.id.btnVuforia);
         edtRemoteID = findViewById(R.id.edtRemoteID);
+        rvDestinationUniqueId = (RecyclerView) findViewById(R.id.rvDestinationUniqueId);
 
         progressBar.setVisibility(View.VISIBLE);
         progressBar.showProgressBar();
@@ -110,6 +120,24 @@ public class NodejsActivity extends AppCompatActivity {
         firstName = sharedPrefs.getString("firstName", null);
         lastName = sharedPrefs.getString("lastName", null);
         phoneNumber = sharedPrefs.getString("phoneNumber", null);
+
+        adapter = new ContactsAdapter(contacts);
+        rvDestinationUniqueId.setAdapter(adapter);
+        rvDestinationUniqueId.setLayoutManager(new LinearLayoutManager(this));
+
+        rvDestinationUniqueId.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), rvDestinationUniqueId, new RecyclerTouchListener.ClickListener() {
+            @Override
+            public void onClick(View view, int position) {
+//                speech(countries_list_code[position]);
+                edtRemoteID.setText(contacts.get(position).getName());
+            }
+
+            @Override
+            public void onLongClick(View view, int position) {
+
+            }
+        }));
+
 
 //        mTitle.setText(randomUniqueId);
 
@@ -165,6 +193,18 @@ public class NodejsActivity extends AppCompatActivity {
 //                "232343",
 //                true, edtRemoteID.getText().toString().trim(), imeiUniqueID, "jsonObject.getString(\"tokenRegistrationFCM\")", firstName, lastName, phoneNumber);
 
+        try{
+            switch (ArCoreApk.getInstance().requestInstall(this, !installRequested)) {
+                case INSTALL_REQUESTED:
+                    installRequested = true;
+                    return;
+                case INSTALLED:
+                    break;
+            }
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+
         if (isGetDataFromServer) {
             if (edtRemoteID.getText().toString().trim().length() != 0) {
                 AndroidNetworking.get("http://192.168.0.13:3000/api/Profile/getprofileuniqueid")
@@ -179,7 +219,7 @@ public class NodejsActivity extends AppCompatActivity {
                                     WebrtcUtil.callSingle(NodejsActivity.this,
                                             signalIp,
                                             edtRemoteID.getText().toString().trim(),
-                                            true, edtRemoteID.getText().toString().trim(), imeiUniqueID, jsonObject.getString("tokenRegistrationFCM"), firstName, lastName, phoneNumber);
+                                            true, randomUniqueId, imeiUniqueID, jsonObject.getString("tokenRegistrationFCM"), firstName, lastName, phoneNumber);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
@@ -211,6 +251,55 @@ public class NodejsActivity extends AppCompatActivity {
         }
 
         return imeiUniqueID;
+    }
+
+
+
+    public void getContactFromServer(String myRandomUniqueId) {
+
+//        [
+//        {
+//            "id": "c237b42e-fe80-49f1-9dc9-59062d3464f7",
+//                "myRandomUniqueIdProfile": "4b2a4c12",
+//                "destinationRandomUniqueIdProfile": "9044c589"
+//        }
+//]
+        AndroidNetworking.get("http://192.168.0.13:3000/api/Contact")
+                .addQueryParameter("randomUniqueIdProfile", myRandomUniqueId) // posting json
+                .setTag("GetContact")
+                .setPriority(Priority.HIGH)
+                .build()
+                .getAsJSONArray(new JSONArrayRequestListener() {
+                    @Override
+                    public void onResponse(JSONArray jsonArray) {
+
+                        for (int i=0; i<jsonArray.length(); i++){
+                            try {
+                                JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+                                if (jsonObject.getString("myRandomUniqueIdProfile").equals(randomUniqueId)){
+                                    Contact contact = new Contact();
+                                    contact.setName(jsonObject.getString("destinationRandomUniqueIdProfile"));
+                                    contacts.add(contact);
+                                }else{
+                                    Contact contact = new Contact();
+                                    contact.setName(jsonObject.getString("myRandomUniqueIdProfile"));
+                                    contacts.add(contact);
+                                }
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        adapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onError(ANError anError) {
+
+                    }
+                });
     }
 
     public void getProfileFromServer(String myImeiUniqueID) {

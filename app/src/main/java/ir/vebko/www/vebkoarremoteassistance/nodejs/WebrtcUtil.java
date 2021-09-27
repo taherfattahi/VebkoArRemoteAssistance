@@ -45,7 +45,7 @@ public class WebrtcUtil {
 
     // one to one
     public static void callSingle(Activity activity, String wss, String roomId, boolean videoEnable,
-                                  String randomUniqueId, String imei, String tokenRegistrationFCM, String firstName, String lastName, String phoneNumber) {
+                                  String randomUniqueId, String imei, String destinationTokenRegistrationFCM, String firstName, String lastName, String phoneNumber) {
         if (TextUtils.isEmpty(wss)) {
             wss = WSS;
         }
@@ -53,81 +53,68 @@ public class WebrtcUtil {
             @Override
             public void onSuccess() {
 
-                JSONObject jsonObjectProfile = new JSONObject();
-                JSONObject jsonObjectData = new JSONObject();
+                JSONObject jsonObjectContact = new JSONObject();
 
                 try {
-                    jsonObjectProfile.put("to", tokenRegistrationFCM);
-                    jsonObjectProfile.put("collapse_key", "news");
-
-                    jsonObjectData.put("body", "Body of Your Notification in Data");
-                    jsonObjectData.put("title", "Incoming Video Call");
-                    jsonObjectData.put("key_1", "Value for key_1");
-                    jsonObjectData.put("key_2", "Value for key_2");
-
-                    jsonObjectProfile.put("data", jsonObjectData);
+                    jsonObjectContact.put("myRandomUniqueIdProfile", randomUniqueId);
+                    jsonObjectContact.put("destinationRandomUniqueIdProfile", roomId);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
 
-                AndroidNetworking.post("https://fcm.googleapis.com/fcm/send")
-                        .addJSONObjectBody(jsonObjectProfile) // posting json
-                        .addHeaders("Authorization", "key=AAAA68JG54A:APA91bGKgYRKIJ9C56ZgQAreD5rzxJ3Tayn1YhXLr3H_pSmcXBGgpJUb2fahiCzGWMTmy-NjBke8E9vZmemfGrkuVxYxt2-3VWOYRPUNNwn-7N8lscETZikuxjtI0UA8aryeD2dHv4BH")
-                        .setTag("AddProfile")
+                AndroidNetworking.post("http://192.168.0.13:3000/api/Contact")
+                        .addJSONObjectBody(jsonObjectContact) // posting json
+                        .setTag("AddContact")
                         .setPriority(Priority.HIGH)
                         .build()
                         .getAsJSONObject(new JSONObjectRequestListener() {
                             @Override
-                            public void onResponse(JSONObject response) {
+                            public void onResponse(JSONObject jsonObject) {
 
-                                ChatSingleActivity.openActivity(activity, videoEnable, roomId, imei, tokenRegistrationFCM, firstName, lastName, phoneNumber);
+                                JSONObject jsonObjectProfile = new JSONObject();
+                                JSONObject jsonObjectData = new JSONObject();
 
-//                                try {
-//                                    randomUniqueId = response.getString("randomUniqueId");
-//                                    tokenRegistrationFCM = response.getString("tokenRegistrationFCM");
-//                                    firstName = response.getString("firstName");
-//                                    lastName = response.getString("lastName");
-//                                    phoneNumber = response.getString("phoneNumber");
+                                try {
+                                    jsonObjectProfile.put("to", destinationTokenRegistrationFCM);
+                                    jsonObjectProfile.put("collapse_key", "news");
 
-//                                    SharedPreferences.Editor editor = sharedPrefs.edit();
-//                                    editor.putString(PREF_IMEI_UNIQUE_ID, imeiUniqueID);
-//                                    editor.putString("randomUniqueId", randomUniqueId);
-//                                    editor.putString("tokenRegistrationFCM", tokenRegistrationFCM);
-//                                    editor.putString("firstName", firstName);
-//                                    editor.putString("lastName", lastName);
-//                                    editor.putString("phoneNumber", phoneNumber);
-//                                    editor.commit();
-//
-//                                    Thread myThread = new Thread() {
-//                                        @Override
-//                                        public void run() {
-//                                            try {
-////                    if (!checkPermission()) {
-////                        requestPermission();
-////                    }else {
-//                                                sleep(1500);
-//                                                Intent intent = new Intent(getApplicationContext(), NodejsActivity.class);
-//                                                startActivity(intent);
-//                                                finish();
-////                    }
-//                                            } catch (InterruptedException e) {
-//                                                e.printStackTrace();
-//                                            }
-//                                        }
-//                                    };
-//                                    myThread.start();
-//
-//                                } catch (JSONException e) {
-//                                    e.printStackTrace();
-//                                }
+                                    jsonObjectData.put("body", "Body of Your Notification in Data");
+                                    jsonObjectData.put("title", "Incoming Video Call");
+                                    jsonObjectData.put("key_1", "Value for key_1");
+                                    jsonObjectData.put("key_2", "Value for key_2");
+
+                                    jsonObjectProfile.put("data", jsonObjectData);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+                                AndroidNetworking.post("https://fcm.googleapis.com/fcm/send")
+                                        .addJSONObjectBody(jsonObjectProfile) // posting json
+                                        .addHeaders("Authorization", "key=AAAAdCVkpQ4:APA91bHxw6Et20DOdLLEl5vcx5byKS-AjzR6_7sam-zrsdVIbD21fdsfvMBDREA5AegY8uEYKnPP2uxkutSjDIUZfDripu7jQs4bsYyE0njip_mjD-OArWWp38h3H0aL_GKZYNmcF1v0")
+                                        .setTag("AddProfile")
+                                        .setPriority(Priority.HIGH)
+                                        .build()
+                                        .getAsJSONObject(new JSONObjectRequestListener() {
+                                            @Override
+                                            public void onResponse(JSONObject response) {
+                                                ChatSingleActivity.openActivity(activity, videoEnable, roomId, imei, destinationTokenRegistrationFCM, firstName, lastName, phoneNumber);
+                                            }
+                                            @Override
+                                            public void onError(ANError error) {
+                                                error.printStackTrace();
+                                                Toast.makeText(activity, "please check your connection", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
                             }
 
                             @Override
-                            public void onError(ANError error) {
-                                error.printStackTrace();
+                            public void onError(ANError anError) {
+                                anError.printStackTrace();
                                 Toast.makeText(activity, "please check your connection", Toast.LENGTH_SHORT).show();
                             }
                         });
+
+
 
 
             }
