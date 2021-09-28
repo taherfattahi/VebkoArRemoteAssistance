@@ -68,9 +68,10 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
         }
     }
 
-    public static void openActivity(Activity activity, boolean videoEnable) {
+    public static void openActivity(Context activity, boolean videoEnable) {
         Intent intent = new Intent(activity, ChatSingleReceiveActivity.class);
         intent.putExtra("videoEnable", videoEnable);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         activity.startActivity(intent);
     }
 

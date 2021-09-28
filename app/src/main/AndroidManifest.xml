@@ -58,6 +58,8 @@
             </intent-filter>
         </service>
 
+        <receiver android:name=".fcm.HandleBroadcastReceiver" />
+
         <activity
             android:name=".vuforia.ImagePlayback"
             android:configChanges="orientation|keyboardHidden|screenSize|smallestScreenSize"

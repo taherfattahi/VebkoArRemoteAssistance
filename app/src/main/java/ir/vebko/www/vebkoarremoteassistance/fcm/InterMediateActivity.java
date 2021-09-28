@@ -16,12 +16,8 @@ InterMediateActivity extends AppCompatActivity {
 
     private NotificationManager notificationManager;
 
-    private String signalIp = "ws://185.208.172.104:3000/ws";
 
-    public String randomUniqueId;
 
-    private SharedPreferences sharedPrefs;
-    private static final String PREF_IMEI_UNIQUE_ID = "PREF_IMEI_UNIQUE_ID";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,13 +27,7 @@ InterMediateActivity extends AppCompatActivity {
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(1);
 
-        sharedPrefs = this.getSharedPreferences(PREF_IMEI_UNIQUE_ID, Context.MODE_PRIVATE);
-        randomUniqueId = sharedPrefs.getString("randomUniqueId", null);
 
-        WebrtcUtil.callSingle1(InterMediateActivity.this,
-                signalIp,
-                randomUniqueId,
-                true, "", "", "", "", "", "");
 
     }
 

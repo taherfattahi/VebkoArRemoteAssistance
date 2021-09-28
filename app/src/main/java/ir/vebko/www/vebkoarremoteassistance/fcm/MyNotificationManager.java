@@ -1,5 +1,6 @@
 package ir.vebko.www.vebkoarremoteassistance.fcm;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -9,11 +10,14 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.widget.RemoteViews;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import ir.vebko.www.vebkoarremoteassistance.R;
+
+import static android.content.Context.NOTIFICATION_SERVICE;
 
 
 public class MyNotificationManager {
@@ -27,7 +31,7 @@ public class MyNotificationManager {
     private MyNotificationManager(Context context){
         this.context = context;
         notificationManagerCompat = NotificationManagerCompat.from(context);
-        notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
     }
 
     public static MyNotificationManager getInstance(Context context){
@@ -92,6 +96,48 @@ public class MyNotificationManager {
 
     public void triggerNotificationWithBackStack(Class targetNotificationActivity, String channelId, String title, String text, String bigText, int priority, boolean autoCancel, int notificationId, int pendingIntentFlag){
 
+
+//        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.notification_expanded);
+//        String strtitle = "salam";
+//        String strtext = "saaaaaaaaaaaaaaaaaaalam";
+//        Intent intent = new Intent(context, InterMediateActivity.class);
+//        intent.putExtra("title", strtitle);
+//        intent.putExtra("text", strtext);
+//        PendingIntent pIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+//        NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+//                .setSmallIcon(R.drawable.vebko3)
+//                .setTicker("getString(R.string.customnotificationticker)")
+//                .setAutoCancel(true)
+//                .setContentIntent(pIntent)
+//                .setContent(remoteViews);
+////        remoteViews.setImageViewResource(R.id.imagenotileft,R.drawable.ic_launcher);
+////        remoteViews.setImageViewResource(R.id.imagenotiright,R.drawable.androidhappy);
+////        remoteViews.setTextViewText(R.id.title,getString(R.string.customnotificationtitle));
+////        remoteViews.setTextViewText(R.id.text,getString(R.string.customnotificationtext));
+//        // Create Notification Manager
+//        NotificationManager notificationmanager = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
+//        // Build Notification with Notification Manager
+//        notificationmanager.notify(0, builder.build());
+
+//        RemoteViews collapsedView = new RemoteViews(context.getPackageName(),
+//                R.layout.notification_collapsed);
+//        RemoteViews expandedView = new RemoteViews(context.getPackageName(),
+//                R.layout.notification_expanded);
+//        Intent clickIntent = new Intent(context, InterMediateActivity.class);
+//        PendingIntent clickPendingIntent = PendingIntent.getBroadcast(context,
+//                0, clickIntent, 0);
+//        collapsedView.setTextViewText(R.id.text_view_collapsed_1, "Hello World!");
+//        expandedView.setImageViewResource(R.id.image_view_expanded, R.drawable.vebko3);
+//        expandedView.setOnClickPendingIntent(R.id.image_view_expanded, clickPendingIntent);
+//        Notification notification = new NotificationCompat.Builder(context, channelId)
+//                .setSmallIcon(R.drawable.vebko3)
+//                .setCustomContentView(collapsedView)
+//                .setCustomBigContentView(expandedView)
+//                //.setStyle(new NotificationCompat.DecoratedCustomViewStyle())
+//                .build();
+//        notificationManager.notify(1, notification);
+
+
         Intent intent = new Intent(context, targetNotificationActivity);
         TaskStackBuilder taskStackBuilder = TaskStackBuilder.create(context);
         taskStackBuilder.addNextIntentWithParentStack(intent);
@@ -99,6 +145,7 @@ public class MyNotificationManager {
         PendingIntent pendingIntent = taskStackBuilder.getPendingIntent(0, pendingIntentFlag);
 
 
+        //todo
         Intent answerCallAction = new Intent(context, InterMediateActivity.class);
         answerCallAction.putExtra("ConstantApp.CALL_RESPONSE_ACTION_KEY", "ConstantApp.CALL_CANCEL_ACTION");
         answerCallAction.putExtra("ACTION_TYPE", "CANCEL_CALL");
@@ -125,21 +172,32 @@ public class MyNotificationManager {
 
         PendingIntent receiveCallPendingIntent = PendingIntent.getBroadcast(context, 1200, receiveCallAction, PendingIntent.FLAG_UPDATE_CURRENT);
 
+//        NotificationManager manager = (NotificationManager) PendingIntent.getService(Context.NOTIFICATION_SERVICE);
+
+        //Create an Intent for the BroadcastReceiver
+        Intent intentDismiss = new Intent(context, HandleBroadcastReceiver.class);
+        //Create the PendingIntent
+        PendingIntent pIntentDismiss = PendingIntent.getBroadcast(context, 0, intentDismiss, 0);
+
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId)
                 .setSmallIcon(R.mipmap.ic_launcher_round)
                 .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher_round))
                 .setContentTitle(title)
                 .setContentText(text)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(bigText))
-                .setPriority(NotificationCompat.PRIORITY_MAX)
-                .setCategory(NotificationCompat.CATEGORY_CALL)
-                .addAction(R.mipmap.ic_launcher_round, "Decline", receiveCallPendingIntent)
+//                .setPriority(NotificationCompat.PRIORITY_MAX)
+//                .setCategory(NotificationCompat.CATEGORY_CALL)
+//                .addAction(R.mipmap.ic_launcher_round, "Decline", receiveCallPendingIntent)
+                .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Decline", pIntentDismiss)
                 .addAction(R.mipmap.ic_launcher_round, "Answer", answerCallPendingIntent)
                 .setContentIntent(pendingIntent)
                 .setChannelId(channelId)
-                .setAutoCancel(false);
-//                .setOngoing(true);
+                .setAutoCancel(false)
+                .setOngoing(true)
+                .setShowWhen(true);
 //                .setFullScreenIntent(cancelCallPendingIntent, true);
+
+
 
         notificationManagerCompat.notify(notificationId,builder.build());
     }

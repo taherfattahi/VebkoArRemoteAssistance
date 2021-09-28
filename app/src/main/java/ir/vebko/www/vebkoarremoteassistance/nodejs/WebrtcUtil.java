@@ -1,6 +1,7 @@
 package ir.vebko.www.vebkoarremoteassistance.nodejs;
 
 import android.app.Activity;
+import android.content.Context;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -134,7 +135,7 @@ public class WebrtcUtil {
         WebRTCManager.getInstance().connect(videoEnable ? MediaType.TYPE_VIDEO : MediaType.TYPE_AUDIO, roomId);
     }
 
-    public static void callSingle1(Activity activity, String wss, String roomId, boolean videoEnable,
+    public static void callSingle1(Context activity, String wss, String roomId, boolean videoEnable,
                                    String randomUniqueId, String imei, String tokenRegistrationFCM, String firstName, String lastName, String phoneNumber) {
         if (TextUtils.isEmpty(wss)) {
             wss = WSS;
