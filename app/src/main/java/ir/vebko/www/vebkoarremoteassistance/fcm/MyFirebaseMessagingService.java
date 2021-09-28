@@ -6,11 +6,13 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
+import com.google.ar.sceneform.Node;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 import ir.vebko.www.vebkoarremoteassistance.MyApplication;
 import ir.vebko.www.vebkoarremoteassistance.R;
+import ir.vebko.www.vebkoarremoteassistance.nodejs.NodejsActivity;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private static final String TAG = "MyFirebaseMessaging";
@@ -40,7 +42,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Log.e(TAG, "onMessageReceived: " + remoteMessage.getData().get("content"));
         Log.e(TAG, "onMessageReceived: " + remoteMessage.getData().get("button"));
 
-        ((MyApplication)getApplication()).triggerNotificationWithBackStack(NotificationDetailsActivity.class,
+        ((MyApplication)getApplication()).triggerNotificationWithBackStack(NodejsActivity.class,
                 getString(R.string.NEWS_CHANNEL_ID),
                 //remoteMessage.getNotification().getTitle(),
                 remoteMessage.getData().get("title"),

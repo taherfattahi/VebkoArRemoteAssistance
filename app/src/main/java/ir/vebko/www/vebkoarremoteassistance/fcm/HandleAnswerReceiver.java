@@ -16,7 +16,7 @@ import ir.vebko.www.vebkoarremoteassistance.nodejs.WebrtcUtil;
 /**
  * Created by priyankam on 28-06-2016.
  */
-public class HandleBroadcastReceiver extends BroadcastReceiver {
+public class HandleAnswerReceiver extends BroadcastReceiver {
 
     private String signalIp = "ws://185.208.172.104:3000/ws";
 
@@ -27,14 +27,15 @@ public class HandleBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Toast.makeText(context, "Notification Dialog Closed", Toast.LENGTH_LONG).show();
-        Log.d("Notification:", "Notification Dialog Closed");
+//        Toast.makeText(context, "Notification Dialog Closed", Toast.LENGTH_LONG).show();
+//        Log.d("Notification:", "Notification Dialog Closed");
+
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         manager.cancel(1);
 
-        PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, new Intent(), 0);
-        NotificationCompat.Builder mb = new NotificationCompat.Builder(context);
-        mb.setContentIntent(resultPendingIntent);
+//        PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, new Intent(), 0);
+//        NotificationCompat.Builder mb = new NotificationCompat.Builder(context);
+//        mb.setContentIntent(resultPendingIntent);
 
         sharedPrefs = context.getSharedPreferences(PREF_IMEI_UNIQUE_ID, Context.MODE_PRIVATE);
         randomUniqueId = sharedPrefs.getString("randomUniqueId", null);
