@@ -8,7 +8,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Build;
+import android.os.PowerManager;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -26,21 +28,21 @@ public class MyNotificationManager {
     private NotificationManagerCompat notificationManagerCompat;
     private NotificationManager notificationManager;
 
-    private MyNotificationManager(Context context){
+    private MyNotificationManager(Context context) {
         this.context = context;
         notificationManagerCompat = NotificationManagerCompat.from(context);
         notificationManager = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
     }
 
-    public static MyNotificationManager getInstance(Context context){
-        if (instance == null){
+    public static MyNotificationManager getInstance(Context context) {
+        if (instance == null) {
             instance = new MyNotificationManager(context);
         }
         return instance;
     }
 
-    public void registerNotificationChannel(String channelID, String channelName, String channelDescription){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+    public void registerNotificationChannel(String channelID, String channelName, String channelDescription) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel notificationChannel = new NotificationChannel(channelID, channelName, NotificationManager.IMPORTANCE_HIGH);
             notificationChannel.setDescription(channelDescription);
             NotificationManager manager = context.getSystemService(NotificationManager.class);
@@ -48,7 +50,7 @@ public class MyNotificationManager {
         }
     }
 
-    public void triggerNotification(Class targetNotificationActivity, String channelID, String title, String text, String bigText, int priority, boolean autoCancel, int notificationID){
+    public void triggerNotification(Class targetNotificationActivity, String channelID, String title, String text, String bigText, int priority, boolean autoCancel, int notificationID) {
         Intent intent = new Intent(context, targetNotificationActivity);
         intent.putExtra("count", title);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -70,15 +72,15 @@ public class MyNotificationManager {
 
     }
 
-    public void triggerNotification(Class targetNotificationActivity, String channelId, String title, String text, String bigText, int priority, boolean autoCancel, int notificationId, int pendingIntentFlag){
+    public void triggerNotification(Class targetNotificationActivity, String channelId, String title, String text, String bigText, int priority, boolean autoCancel, int notificationId, int pendingIntentFlag) {
 
         Intent intent = new Intent(context, targetNotificationActivity);
         intent.putExtra("count", title);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, pendingIntentFlag);
 
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context,channelId)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId)
                 .setSmallIcon(R.mipmap.ic_launcher_round)
                 .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher_round))
                 .setContentTitle(title)
@@ -89,10 +91,10 @@ public class MyNotificationManager {
                 .setChannelId(channelId)
                 .setAutoCancel(true);
 
-        notificationManagerCompat.notify(notificationId,builder.build());
+        notificationManagerCompat.notify(notificationId, builder.build());
     }
 
-    public void triggerNotificationWithBackStack(Class targetNotificationActivity, String channelId, String title, String text, String bigText, int priority, boolean autoCancel, int notificationId, int pendingIntentFlag){
+    public void triggerNotificationWithBackStack(Class targetNotificationActivity, String channelId, String title, String text, String bigText, int priority, boolean autoCancel, int notificationId, int pendingIntentFlag) {
 
 
 //        Intent intent = new Intent(context, targetNotificationActivity);
@@ -139,35 +141,79 @@ public class MyNotificationManager {
         PendingIntent pIntentDecline = PendingIntent.getBroadcast(context, 0, intentDecline, 0);
         PendingIntent pIntentAnswerCall = PendingIntent.getBroadcast(context, 0, intentAnswer, 0);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId)
-                .setSmallIcon(R.drawable.phone_call_icon)
-                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.phone_call_icon))
-                .setContentTitle(title)
-                .setContentText(text)
-                .setStyle(new NotificationCompat.BigTextStyle().bigText(bigText))
-                .setPriority(NotificationCompat.PRIORITY_MAX)
-                .setCategory(NotificationCompat.CATEGORY_CALL)
-                .addAction(R.mipmap.ic_launcher_round, "Decline", pIntentDecline)
-                .addAction(R.mipmap.ic_launcher_round, "Answer", pIntentAnswerCall)
-//                .setContentIntent(answerCallPendingIntent)
-                .setChannelId(channelId)
-                .setAutoCancel(false)
-                .setOngoing(true)
-                .setFullScreenIntent(pIntentAnswerCall, true);
+        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        boolean isScreenOn = pm.isInteractive();
+//        if (isScreenOn == false) {
+//            PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE, "MyLock");
+//            wl.acquire(10000);
+//            PowerManager.WakeLock wl_cpu = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyCpuLock");
+//            wl_cpu.acquire(10000);
+//        }
+        NotificationCompat.Builder builder;
+        if (!isScreenOn) {
+            builder = new NotificationCompat.Builder(context, channelId)
+                    .setSmallIcon(R.drawable.phone_call_icon)
+                    .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.phone_call_icon))
+                    .setContentTitle(title)
+                    .setContentText(text)
+                    .setStyle(new NotificationCompat.BigTextStyle().bigText(bigText))
+//                    .setPriority(NotificationCompat.PRIORITY_MAX)
+//                    .setCategory(NotificationCompat.CATEGORY_CALL)
+                    .addAction(R.mipmap.ic_launcher_round, "Decline", pIntentDecline)
+                    .addAction(R.mipmap.ic_launcher_round, "Answer", pIntentAnswerCall)
+                    .setContentIntent(pIntentAnswerCall)
+                    .setChannelId(channelId)
+                    .setAutoCancel(false)
+                    .setOngoing(true);
+//                .setLights(Color.GREEN, 2000, 2000)
+//                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+//                .setDefaults(-1)
+//                .setFullScreenIntent(pIntentAnswerCall, true);
+        } else {
+            builder = new NotificationCompat.Builder(context, channelId)
+                    .setSmallIcon(R.drawable.phone_call_icon)
+                    .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.phone_call_icon))
+                    .setContentTitle(title)
+                    .setContentText(text)
+                    .setStyle(new NotificationCompat.BigTextStyle().bigText(bigText))
+//                    .setPriority(NotificationCompat.PRIORITY_MAX)
+//                    .setCategory(NotificationCompat.CATEGORY_CALL)
+                    .addAction(R.mipmap.ic_launcher_round, "Decline", pIntentDecline)
+                    .addAction(R.mipmap.ic_launcher_round, "Answer", pIntentAnswerCall)
+                    .setContentIntent(pIntentAnswerCall)
+                    .setChannelId(channelId)
+                    .setAutoCancel(false)
+                    .setOngoing(true)
+//                    .setLights(Color.GREEN, 2000, 2000)
+//                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+//                .setDefaults(-1)
+                    .setFullScreenIntent(pIntentAnswerCall, true);
+        }
 
 
+//        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+//        PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+//        PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "TAG");
+//        wakeLock.acquire(5000);
+//        NotificationManager notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManagerCompat.notify(notificationId, builder.build());
 
-        notificationManagerCompat.notify(notificationId,builder.build());
+        PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK |
+                PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE, "WAKE:LOCK");
+        wakeLock.acquire();
+        wakeLock.release();
+
     }
 
-    public void updateWithPicture(Class targetNotificationActivity,String title,String text, String channelId, int notificationId, String bigpictureString, int pendingIntentflag) {
+    public void updateWithPicture(Class targetNotificationActivity, String title, String text, String channelId, int notificationId, String bigpictureString, int pendingIntentflag) {
 
         Intent intent = new Intent(context, targetNotificationActivity);
         intent.putExtra("count", title);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, pendingIntentflag);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context,channelId)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId)
                 .setSmallIcon(R.mipmap.ic_launcher_round)
                 .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher_round))
                 .setContentTitle(title)
@@ -183,7 +229,7 @@ public class MyNotificationManager {
         notificationManager.notify(notificationId, builder.build());
     }
 
-    public void cancelNotification(int notificationId){
+    public void cancelNotification(int notificationId) {
         notificationManager.cancel(notificationId);
     }
 

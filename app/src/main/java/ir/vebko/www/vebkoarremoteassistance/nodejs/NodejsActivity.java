@@ -378,7 +378,7 @@ public class NodejsActivity extends AppCompatActivity {
         }
 
         if (isGetDataFromServer) {
-            if (edtRemoteID.getText().toString().trim().length() != 0) {
+            if (edtRemoteID.getText().toString().trim().length() != 0 && !edtRemoteID.getText().toString().trim().equals(randomUniqueId)) {
                 AndroidNetworking.get("http://192.168.0.13:3000/api/Profile/getprofileuniqueid")
                         .addQueryParameter("randomUniqueId", edtRemoteID.getText().toString().trim())
                         .setTag("getProfileUniqueId")

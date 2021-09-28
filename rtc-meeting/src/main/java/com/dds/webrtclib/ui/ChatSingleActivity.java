@@ -40,7 +40,10 @@ import com.dds.webrtclib.R;
 import com.dds.webrtclib.WebRTCManager;
 import com.dds.webrtclib.ar.ArSceneView;
 import com.dds.webrtclib.ar.Stroke;
+import com.dds.webrtclib.bean.MediaType;
+import com.dds.webrtclib.bean.MyIceServer;
 import com.dds.webrtclib.utils.PermissionUtil;
+import com.dds.webrtclib.ws.IConnectEvent;
 import com.google.ar.core.ArCoreApk;
 import com.google.ar.core.Config;
 import com.google.ar.core.Frame;
@@ -63,6 +66,7 @@ import com.google.ar.sceneform.rendering.Material;
 import com.google.ar.sceneform.rendering.MaterialFactory;
 //import com.google.ar.sceneform.ArSceneView;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.webrtc.EglBase;
 import org.webrtc.MediaStream;
@@ -72,6 +76,7 @@ import org.webrtc.SurfaceViewRenderer;
 import org.webrtc.VideoFrame;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -95,7 +100,6 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
     private boolean isSwappedFeeds;
 
     private EglBase rootEglBase;
-
 
     private Session session;
 //    private final SnackbarHelper messageSnackbarHelper = new SnackbarHelper();
@@ -124,6 +128,24 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
     public String lastName;
     public String phoneNumber;
 
+    public static final String HOST = "136.243.172.245";
+
+    // turn and stun
+    private static MyIceServer[] iceServers = {
+            new MyIceServer("stun:stun.l.google.com:19302"),
+
+            new MyIceServer("stun:" + HOST + ":3478?transport=udp"),
+            new MyIceServer("turn:" + HOST + ":3478?transport=udp",
+                    "test",
+                    "test123"),
+            new MyIceServer("turn:" + HOST + ":3478?transport=tcp",
+                    "test",
+                    "test123"),
+    };
+
+    // signalling
+    private String signalIp = "ws://185.208.172.104:3000/ws";
+
     public static void openActivity(Activity activity, boolean videoEnable, String randomUniqueId, String imei, String destinationTokenRegistrationFCM, String firstName, String lastName, String phoneNumber) {
         Intent intent = new Intent(activity, ChatSingleActivity.class);
         intent.putExtra("videoEnable", videoEnable);
@@ -148,6 +170,8 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
         initVar();
         initListener();
     }
+
+    boolean isTestFlag;
 
     private void initVar() {
         Intent intent = getIntent();
@@ -207,6 +231,58 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
 
         initializeSceneView();
 
+        //todo
+        // Create the Handler object (on the main thread by default)
+//        Handler handler = new Handler();
+//        // Define the code block to be executed
+//        Runnable runnableCode = new Runnable() {
+//            @Override
+//            public void run() {
+//                // Do something here on the main thread
+//                Log.d("Handlers", "Called on main thread");
+//
+//                if (isConnected()){
+//                    if (isTestFlag) {
+//                        WebRTCManager.getInstance().init(signalIp, iceServers, new IConnectEvent() {
+//                            @Override
+//                            public void onSuccess() {
+//                                startCall();
+//                            }
+//
+//                            @Override
+//                            public void onFailed(String msg) {
+//
+//                            }
+//                        });
+//                        //todo randomUniqueId
+//                        WebRTCManager.getInstance().connect(videoEnable ? MediaType.TYPE_VIDEO : MediaType.TYPE_AUDIO, randomUniqueId);
+//                        isTestFlag = false;
+//                    }
+//                }else{
+//                    isTestFlag = true;
+//                }
+//
+//                // Repeat this the same runnable code block again another 2 seconds
+//                // 'this' is referencing the Runnable object
+//                handler.postDelayed(this, 2000);
+//            }
+//        };
+//        // Start the initial runnable task by posting through the handler
+//        handler.post(runnableCode);
+
+
+    }
+
+    public boolean isConnected() {
+        String command = "ping -c 1 google.com";
+        try {
+            return Runtime.getRuntime().exec(command).waitFor() == 0;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     private Emitter.Listener onConnect = new Emitter.Listener() {
@@ -508,7 +584,6 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
     }
 
 
-
     @SuppressLint("ClickableViewAccessibility")
     private void initListener() {
         if (videoEnable) {
@@ -584,6 +659,7 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
 
             @Override
             public void onCloseWithId(String socketId) {
+                //todo
                 runOnUiThread(() -> {
                     disConnect();
                     ChatSingleActivity.this.finish();
@@ -616,7 +692,7 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
 
     @Override
     public void onBackPressed() {
-    //        super.onBackPressed();
+        //        super.onBackPressed();
         hangUp();
     }
 
@@ -650,17 +726,17 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
         manager.toggleMute(enable);
     }
 
-    public void toggleBlueToothOn(boolean enable){
-        if (enable){
-            if (manager._peerHelper.mAudioManager.isBluetoothA2dpOn()){
+    public void toggleBlueToothOn(boolean enable) {
+        if (enable) {
+            if (manager._peerHelper.mAudioManager.isBluetoothA2dpOn()) {
                 manager._peerHelper.mAudioManager.startBluetoothSco();
                 manager._peerHelper.mAudioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
             }
-        }else{
+        } else {
 //            if (manager._peerHelper.mAudioManager.isBluetoothScoOn()){
-                manager._peerHelper.mAudioManager.stopBluetoothSco();
-                manager.toggleSpeaker(true);
-        //                manager._peerHelper.mAudioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+            manager._peerHelper.mAudioManager.stopBluetoothSco();
+            manager.toggleSpeaker(true);
+            //                manager._peerHelper.mAudioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
 //            }
         }
     }

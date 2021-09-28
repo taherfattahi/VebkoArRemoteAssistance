@@ -123,9 +123,7 @@ public class WebRTCManager implements ISignalingEvents {
             if (_connectEvent != null) {
                 _connectEvent.onSuccess();
             }
-
         });
-
     }
 
     @Override
@@ -139,9 +137,9 @@ public class WebRTCManager implements ISignalingEvents {
                 }
             }
         });
-
     }
 
+    //todo
     @Override
     public void onJoinToRoom(ArrayList<String> connections, String myId) {
         handler.post(() -> {
@@ -152,9 +150,9 @@ public class WebRTCManager implements ISignalingEvents {
                 }
             }
         });
-
     }
 
+    //todo
     @Override
     public void onRemoteJoinToRoom(String socketId) {
         handler.post(() -> {
@@ -163,9 +161,9 @@ public class WebRTCManager implements ISignalingEvents {
 
             }
         });
-
     }
 
+    //5
     @Override
     public void onRemoteIceCandidate(String socketId, IceCandidate iceCandidate) {
         handler.post(() -> {
@@ -173,7 +171,6 @@ public class WebRTCManager implements ISignalingEvents {
                 _peerHelper.onRemoteIceCandidate(socketId, iceCandidate);
             }
         });
-
     }
 
     @Override
@@ -183,7 +180,6 @@ public class WebRTCManager implements ISignalingEvents {
                 _peerHelper.onRemoteIceCandidateRemove(socketId, iceCandidates);
             }
         });
-
     }
 
     @Override
@@ -193,9 +189,9 @@ public class WebRTCManager implements ISignalingEvents {
                 _peerHelper.onRemoteOutRoom(socketId);
             }
         });
-
     }
 
+    //4
     @Override
     public void onReceiveOffer(String socketId, String sdp) {
         handler.post(() -> {
@@ -203,7 +199,6 @@ public class WebRTCManager implements ISignalingEvents {
                 _peerHelper.onReceiveOffer(socketId, sdp);
             }
         });
-
     }
 
     @Override
@@ -213,7 +208,6 @@ public class WebRTCManager implements ISignalingEvents {
                 _peerHelper.onReceiverAnswer(socketId, sdp);
             }
         });
-
     }
 
 
