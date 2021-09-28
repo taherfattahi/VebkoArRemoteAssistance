@@ -59,10 +59,18 @@ public class ProfileActivity extends AppCompatActivity {
         lastName = intent.getStringExtra("lastName");
         phoneNumber = intent.getStringExtra("phoneNumber");
 
-        txtRandomUniqueId.setText(randomUniqueId);
-        edtFirstName.setText(firstName);
-        edtLastName.setText(lastName);
-        edtPhoneNumber.setText(phoneNumber);
+        if (!randomUniqueId.equals("null")){
+            txtRandomUniqueId.setText(randomUniqueId);
+        }
+        if (!firstName.equals("null")){
+            edtFirstName.setText(firstName);
+        }
+        if (!lastName.equals("null")){
+            edtLastName.setText(lastName);
+        }
+        if (!phoneNumber.equals("null")){
+            edtPhoneNumber.setText(phoneNumber);
+        }
 
         btnUpdateProfile.setOnClickListener(new View.OnClickListener() {
             @Override

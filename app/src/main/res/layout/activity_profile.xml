@@ -16,7 +16,6 @@
         android:ems="10"
         android:hint="Add First Name "
         android:inputType="textPersonName"
-        android:text="Name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/textView6"
         app:layout_constraintTop_toBottomOf="@+id/txtRandomUniqueId" />
@@ -30,7 +29,6 @@
         android:ems="10"
         android:hint="Add Last Name"
         android:inputType="textPersonName"
-        android:text="Name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/textView7"
         app:layout_constraintTop_toBottomOf="@+id/edtFirstName" />
@@ -44,7 +42,6 @@
         android:ems="10"
         android:hint="Add Phone Number"
         android:inputType="textPersonName"
-        android:text="Name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/textView8"
         app:layout_constraintTop_toBottomOf="@+id/edtLastName" />

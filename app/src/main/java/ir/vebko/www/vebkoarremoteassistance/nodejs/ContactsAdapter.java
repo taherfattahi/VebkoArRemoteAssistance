@@ -88,8 +88,11 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
         });
 
         TextView txtAddCustomName = holder.txtAddCustomName;
-        txtAddCustomName.setText(contact.getMyCustomName());
-
+        if (contact.getMyCustomName() != null) {
+            if (!contact.getMyCustomName().equals("null")){
+                txtAddCustomName.setText(contact.getMyCustomName());
+            }
+        }
 
         Button button = holder.btnAddCustomName;
         button.setOnClickListener(new View.OnClickListener() {

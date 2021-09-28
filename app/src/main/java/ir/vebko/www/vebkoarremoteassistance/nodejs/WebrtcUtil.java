@@ -44,8 +44,8 @@ public class WebrtcUtil {
     // private static String WSS = "ws://192.168.1.138:3000";
 
     // one to one
-    public static void callSingle(Activity activity, String wss, String roomId, boolean videoEnable,
-                                  String randomUniqueId, String imei, String destinationTokenRegistrationFCM, String firstName, String lastName, String phoneNumber) {
+    public static void callSingle(Activity activity, NodejsActivity nodejsActivity, String wss, String roomId, boolean videoEnable,
+                                  String randomUniqueId, String imei, String destinationTokenRegistrationFCM, String destinationCustomName, String myCustomName, String lastName, String phoneNumber) {
         if (TextUtils.isEmpty(wss)) {
             wss = WSS;
         }
@@ -58,6 +58,8 @@ public class WebrtcUtil {
                 try {
                     jsonObjectContact.put("myRandomUniqueIdProfile", randomUniqueId);
                     jsonObjectContact.put("destinationRandomUniqueIdProfile", roomId);
+                    jsonObjectContact.put("myCustomName", myCustomName);
+                    jsonObjectContact.put("destinationCustomName", destinationCustomName);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -75,6 +77,8 @@ public class WebrtcUtil {
                                 JSONObject jsonObjectData = new JSONObject();
 
                                 try {
+                                    nodejsActivity.getContact(jsonObject.getString("destinationCustomName"));
+
                                     jsonObjectProfile.put("to", destinationTokenRegistrationFCM);
                                     jsonObjectProfile.put("collapse_key", "news");
 
@@ -97,7 +101,7 @@ public class WebrtcUtil {
                                         .getAsJSONObject(new JSONObjectRequestListener() {
                                             @Override
                                             public void onResponse(JSONObject response) {
-                                                ChatSingleActivity.openActivity(activity, videoEnable, roomId, imei, destinationTokenRegistrationFCM, firstName, lastName, phoneNumber);
+                                                ChatSingleActivity.openActivity(activity, videoEnable, roomId, imei, destinationTokenRegistrationFCM, myCustomName, lastName, phoneNumber);
                                             }
                                             @Override
                                             public void onError(ANError error) {
