@@ -3,6 +3,7 @@ package com.dds.webrtclib.ui;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -27,6 +28,7 @@ import android.view.MotionEvent;
 import android.view.PixelCopy;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -66,6 +68,8 @@ import com.google.ar.sceneform.rendering.Material;
 import com.google.ar.sceneform.rendering.MaterialFactory;
 //import com.google.ar.sceneform.ArSceneView;
 
+import org.java_websocket.client.WebSocketClient;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.webrtc.EglBase;
@@ -77,6 +81,7 @@ import org.webrtc.VideoFrame;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -89,6 +94,7 @@ import io.socket.emitter.Emitter;
 
 
 public class ChatSingleActivity extends AppCompatActivity implements SurfaceHolder.Callback, Scene.OnPeekTouchListener {
+
     //    private SurfaceViewRenderer local_view;
     private ArSceneView remote_view;
     //    private ProxyVideoSink localRender;
@@ -211,8 +217,9 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
 //        arSceneView.getPlaneRenderer().setVisible(false);
 //        installRequested = false;
 
+        //todo
         try {
-            socketIO = IO.socket("http://185.208.172.104:3001");
+            socketIO = IO.socket("http://192.168.0.13:3001");
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
@@ -299,7 +306,6 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
 
     boolean testFlag = true;
 
-
     private Emitter.Listener onNewMessageClearDrawFunc = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
@@ -331,48 +337,54 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    String a = (String) args[0];
+                    String[] b = a.split("-");
 
-                    if (testFlag) {
-                        testFlag = false;
-                        String a = (String) args[0];
-                        String[] b = a.split("-");
+                    if (b[0].equals(randomUniqueId)) {
 
-                        DisplayMetrics metrics = new DisplayMetrics();
-                        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+                        if (testFlag) {
+                            testFlag = false;
 
-                        widthMain = metrics.widthPixels;
-                        heightMain = metrics.heightPixels;
+                            DisplayMetrics metrics = new DisplayMetrics();
+                            getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+                            widthMain = metrics.widthPixels;
+                            heightMain = metrics.heightPixels;
 
 //                        Log.d("test123", "run: " + b[2]);
 
-                        Camera camera = remote_view.getScene().getCamera();
-                        Ray ray = camera.screenPointToRay((Float.parseFloat(b[0]) * widthMain) / Float.parseFloat(b[3]), (Float.parseFloat(b[1]) * heightMain) / Float.parseFloat(b[4]));
-                        Vector3 drawPoint = ray.getPoint(DRAW_DISTANCE);
+                            Camera camera = remote_view.getScene().getCamera();
+//                        Ray ray = camera.screenPointToRay((Float.parseFloat(b[0]) * widthMain) / Float.parseFloat(b[3]), (Float.parseFloat(b[1]) * heightMain) / Float.parseFloat(b[4]));
+                            Ray ray = camera.screenPointToRay((Float.parseFloat(b[1]) * widthMain) / Float.parseFloat(b[4]), (Float.parseFloat(b[2]) * heightMain) / Float.parseFloat(b[5]));
+                            Vector3 drawPoint = ray.getPoint(DRAW_DISTANCE);
 
-                        if (b[2].equals("down")) {
-                            if (anchorNode == null) {
-                                com.google.ar.core.Camera coreCamera = remote_view.getArFrame().getCamera();
-                                if (coreCamera.getTrackingState() != TrackingState.TRACKING) {
-                                    return;
+                            if (b[3].equals("down")) {
+                                if (anchorNode == null) {
+                                    com.google.ar.core.Camera coreCamera = remote_view.getArFrame().getCamera();
+                                    if (coreCamera.getTrackingState() != TrackingState.TRACKING) {
+                                        return;
+                                    }
+                                    Pose pose = coreCamera.getPose();
+                                    anchorNode = new AnchorNode(remote_view.getSession().createAnchor(pose));
+                                    anchorNode.setParent(remote_view.getScene());
                                 }
-                                Pose pose = coreCamera.getPose();
-                                anchorNode = new AnchorNode(remote_view.getSession().createAnchor(pose));
-                                anchorNode.setParent(remote_view.getScene());
+
+                                currentStroke = new Stroke(anchorNode, material);
+                                strokes.add(currentStroke);
+                                currentStroke.add(drawPoint);
+
+                            } else if (b[3].equals("move") && currentStroke != null) {
+                                currentStroke.add(drawPoint);
                             }
-
-                            currentStroke = new Stroke(anchorNode, material);
-                            strokes.add(currentStroke);
-                            currentStroke.add(drawPoint);
-
-                        } else if (b[2].equals("move") && currentStroke != null) {
-                            currentStroke.add(drawPoint);
+                            testFlag = true;
                         }
-                        testFlag = true;
                     }
                 }
+
             });
         }
     };
+
 
     private Void handleMaterialError(Throwable throwable) {
         Toast toast = Toast.makeText(this, "Unable to create material", Toast.LENGTH_LONG);
@@ -694,6 +706,7 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
     public void onBackPressed() {
         //        super.onBackPressed();
         hangUp();
+
     }
 
 

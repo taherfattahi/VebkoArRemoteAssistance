@@ -143,7 +143,7 @@ public class WebrtcUtil {
         WebRTCManager.getInstance().init(wss, iceServers, new IConnectEvent() {
             @Override
             public void onSuccess() {
-                ChatSingleReceiveActivity.openActivity(activity, videoEnable);
+                ChatSingleReceiveActivity.openActivity(activity, videoEnable, roomId);
             }
 
             @Override

@@ -7,6 +7,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.dds.webrtclib.WebRTCManager;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -23,6 +24,7 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -45,6 +47,18 @@ public class JavaWebSocket implements IWebSocket {
 
     public JavaWebSocket(ISignalingEvents events) {
         this.events = events;
+    }
+
+    public boolean isConnected() {
+        String command = "ping -c 1 google.com";
+        try {
+            return Runtime.getRuntime().exec(command).waitFor() == 0;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     @Override
@@ -75,7 +89,22 @@ public class JavaWebSocket implements IWebSocket {
                 public void onClose(int code, String reason, boolean remote) {
                     Log.e(TAG, "onClose:" + reason);
                     if (events != null) {
-                        events.onWebSocketOpenFailed(reason);
+//                        try {
+//                            int counter = 0;
+//                            while (counter < 60000 && !isConnected()) {
+//                                Thread.sleep(1);
+//                                counter++;
+//                            }
+//                            if (!isConnected())
+                                events.onWebSocketOpenFailed(reason);
+//                            else{
+//                                WebRTCManager.test = true;
+//                                events.onWebSocketOpen();
+//                                WebRTCManager.test = false;
+//                            }
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        }
                     }
                 }
 

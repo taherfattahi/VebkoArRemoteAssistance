@@ -59,18 +59,22 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
 
     private NotificationManager notificationManager;
 
+    public String myRandomUniqueId;
+
     private Socket mSocket;
     {
         try {
-            mSocket = IO.socket("http://185.208.172.104:3001");
+//            mSocket = IO.socket("http://185.208.172.104:3001");
+            mSocket = IO.socket("http://192.168.0.13:3001");
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
     }
 
-    public static void openActivity(Context activity, boolean videoEnable) {
+    public static void openActivity(Context activity, boolean videoEnable, String roomId) {
         Intent intent = new Intent(activity, ChatSingleReceiveActivity.class);
         intent.putExtra("videoEnable", videoEnable);
+        intent.putExtra("myRandomUniqueId", roomId);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         activity.startActivity(intent);
     }
@@ -99,6 +103,7 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
     private void initVar() {
         Intent intent = getIntent();
         videoEnable = intent.getBooleanExtra("videoEnable", false);
+        myRandomUniqueId = intent.getStringExtra("myRandomUniqueId");
 
         ChatSingleReceiveFragment chatSingleReceiveFragment = new ChatSingleReceiveFragment();
         replaceFragment(chatSingleReceiveFragment, videoEnable);
@@ -149,7 +154,8 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
                         int xMove1 = (int) event.getX();
                         int yMove1 = (int) event.getY();
 
-                        mSocket.emit("positionPlayer", xMove1 + "-" + yMove1 + "-" + "down" + "-" + width + "-" + height);
+//
+                        mSocket.emit("positionPlayer", myRandomUniqueId + "-" + xMove1 + "-" + yMove1 + "-" + "down" + "-" + width + "-" + height);
                         break;
                     case MotionEvent.ACTION_MOVE:
                         Log.i("TAG", "moving: (" + x + ", " + y + ")");
@@ -158,7 +164,7 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
                         int yMove = (int) event.getY();
 
                         if (zz % 2 == 0) {
-                            mSocket.emit("positionPlayer", xMove + "-" + yMove + "-" + "move" + "-" + width + "-" + height);
+                            mSocket.emit("positionPlayer", myRandomUniqueId + "-" + xMove + "-" + yMove + "-" + "move" + "-" + width + "-" + height);
                         }
                         zz++;
                         break;

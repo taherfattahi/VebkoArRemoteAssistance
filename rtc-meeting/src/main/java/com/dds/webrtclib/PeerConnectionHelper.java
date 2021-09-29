@@ -187,7 +187,6 @@ public class PeerConnectionHelper {
 
     public void onRemoteOutRoom(String socketId) {
         executor.execute(() -> closePeerConnection(socketId));
-
     }
 
     public void onReceiveOffer(String socketId, String description) {
