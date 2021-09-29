@@ -403,7 +403,7 @@ public class NodejsActivity extends AppCompatActivity {
                             @Override
                             public void onError(ANError anError) {
                                 anError.printStackTrace();
-                                if (edtRemoteID.getText().toString().trim().length() != 0){
+                                if (edtRemoteID.getText().toString().trim().length() == 0){
                                     Toast.makeText(getApplicationContext(), "please add correct ID", Toast.LENGTH_SHORT).show();
                                 }else if (anError.getErrorBody().contains("Is Calling!!!!!!")) {
                                     Toast.makeText(getApplicationContext(), "this user is calling", Toast.LENGTH_SHORT).show();
