@@ -35,6 +35,10 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.androidnetworking.AndroidNetworking;
+import com.androidnetworking.common.Priority;
+import com.androidnetworking.error.ANError;
+import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.dds.webrtclib.IViewCallback;
 import com.dds.webrtclib.PeerConnectionHelper;
 import com.dds.webrtclib.ProxyVideoSink;
@@ -103,7 +107,6 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
     private WebRTCManager manager;
 
     private boolean videoEnable;
-    private boolean isSwappedFeeds;
 
     private EglBase rootEglBase;
 
@@ -120,6 +123,7 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
     private Stroke currentStroke;
 
     private static Socket socketIO = null;
+//    private Handler handlerHeartBeatChecker;
 
     private int widthMain;
     private int heightMain;
@@ -128,13 +132,21 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
 
     private boolean installRequested;
 
-    public String randomUniqueId;
+    public String myRandomUniqueId;
+    public String destinationRandomUniqueId;
     public String imeiUniqueID;
+    public String destinationTokenRegistrationFCM;
     public String firstName;
     public String lastName;
     public String phoneNumber;
 
+//    private boolean isAlive = true;
+//    private boolean isAliveTimerFlag = false;
+
     public static final String HOST = "136.243.172.245";
+
+    // signalling
+    private String signalIp = "ws://185.208.172.104:3000/ws";
 
     // turn and stun
     private static MyIceServer[] iceServers = {
@@ -149,18 +161,20 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
                     "test123"),
     };
 
-    // signalling
-    private String signalIp = "ws://185.208.172.104:3000/ws";
 
-    public static void openActivity(Activity activity, boolean videoEnable, String randomUniqueId, String imei, String destinationTokenRegistrationFCM, String firstName, String lastName, String phoneNumber) {
+    public static void openActivity(Activity activity, boolean videoEnable, String destinationRandomUniqueId, String myRandomUniqueId, String imei, String destinationTokenRegistrationFCM, String firstName, String lastName, String phoneNumber) {
         Intent intent = new Intent(activity, ChatSingleActivity.class);
         intent.putExtra("videoEnable", videoEnable);
-        intent.putExtra("randomUniqueId", randomUniqueId);
+        intent.putExtra("destinationRandomUniqueId", destinationRandomUniqueId);
+        intent.putExtra("myRandomUniqueId", myRandomUniqueId);
         intent.putExtra("imei", imei);
         intent.putExtra("destinationTokenRegistrationFCM", destinationTokenRegistrationFCM);
         intent.putExtra("firstName", firstName);
         intent.putExtra("lastName", lastName);
         intent.putExtra("phoneNumber", phoneNumber);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         activity.startActivity(intent);
     }
 
@@ -173,17 +187,19 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
                 | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.wr_activity_chat_single);
-        initVar();
-        initListener();
-    }
 
-    boolean isTestFlag;
+
+        initVar();
+
+    }
 
     private void initVar() {
         Intent intent = getIntent();
         videoEnable = intent.getBooleanExtra("videoEnable", false);
-        randomUniqueId = intent.getStringExtra("randomUniqueId");
+        myRandomUniqueId = intent.getStringExtra("myRandomUniqueId");
+        destinationRandomUniqueId = intent.getStringExtra("destinationRandomUniqueId");
         imeiUniqueID = intent.getStringExtra("imeiUniqueID");
+        destinationTokenRegistrationFCM = intent.getStringExtra("destinationTokenRegistrationFCM");
         firstName = intent.getStringExtra("firstName");
         lastName = intent.getStringExtra("lastName");
         phoneNumber = intent.getStringExtra("phoneNumber");
@@ -226,6 +242,7 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
 
         socketIO.on(Socket.EVENT_CONNECT, onConnect);
         socketIO.on("positionPusher", onNewMessage);
+//        socketIO.on("heartBeatPusher", onHeartBeatMessage);
         socketIO.on("clearDrawFunc", onNewMessageClearDrawFunc);
         socketIO.on("changeColorDrawFunc", onNewMessageChangeColorDrawFunc);
 
@@ -239,44 +256,64 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
         initializeSceneView();
 
         //todo
-        // Create the Handler object (on the main thread by default)
-//        Handler handler = new Handler();
+//        handlerHeartBeatChecker = new Handler();
 //        // Define the code block to be executed
-//        Runnable runnableCode = new Runnable() {
+//        Runnable runnableCodeHeartBeatChecker = new Runnable() {
 //            @Override
 //            public void run() {
 //                // Do something here on the main thread
-//                Log.d("Handlers", "Called on main thread");
+//                Log.d("Handlers", "Called on main thread: " + socketIO.isActive());
 //
-//                if (isConnected()){
-//                    if (isTestFlag) {
-//                        WebRTCManager.getInstance().init(signalIp, iceServers, new IConnectEvent() {
-//                            @Override
-//                            public void onSuccess() {
-//                                startCall();
-//                            }
-//
-//                            @Override
-//                            public void onFailed(String msg) {
-//
-//                            }
-//                        });
-//                        //todo randomUniqueId
-//                        WebRTCManager.getInstance().connect(videoEnable ? MediaType.TYPE_VIDEO : MediaType.TYPE_AUDIO, randomUniqueId);
-//                        isTestFlag = false;
+//                if (!isAlive) {
+//                    if (!isAliveTimerFlag) {
+////                        isDestroyConnection = true;
+//                        isAliveTimerFlag = true;
+//                        isAliveTimer();
 //                    }
-//                }else{
-//                    isTestFlag = true;
+//                }
+//                if (isConnected()) {
+//                    if (socketIO.isActive()) {
+//                        socketIO.emit("heartBeat", destinationRandomUniqueId + "-" + myRandomUniqueId + "-" + "alive");
+//                    }
+//                    if (isAlive) {
+//                        if (isAliveTimerFlag) {
+//                            isAliveTimerFlag = false;
+//                            //recalling
+//
+//                            socketIO.emit("reCall", destinationRandomUniqueId + "-" + "reCall");
+//
+//                            hangUp();
+//
+//                            WebRTCManager.getInstance().init(signalIp, iceServers, new IConnectEvent() {
+//                                @Override
+//                                public void onSuccess() {
+//                                    ChatSingleActivity.openActivity(ChatSingleActivity.this, videoEnable, destinationRandomUniqueId, myRandomUniqueId, imeiUniqueID, destinationTokenRegistrationFCM, firstName, lastName, phoneNumber);
+////                                    finish();
+////                                    overridePendingTransition(0, 0);
+////                                    startActivity(getIntent());
+////                                    overridePendingTransition(0, 0);
+//                                }
+//
+//                                @Override
+//                                public void onFailed(String msg) {
+//
+//                                }
+//                            });
+//
+//                            WebRTCManager.getInstance().connect(videoEnable ? MediaType.TYPE_VIDEO : MediaType.TYPE_AUDIO, destinationRandomUniqueId);
+//                        }
+//                    }
+//                } else {
+//                    isAlive = false;
 //                }
 //
 //                // Repeat this the same runnable code block again another 2 seconds
 //                // 'this' is referencing the Runnable object
-//                handler.postDelayed(this, 2000);
+//                handlerHeartBeatChecker.postDelayed(this, 2000);
 //            }
 //        };
 //        // Start the initial runnable task by posting through the handler
-//        handler.post(runnableCode);
-
+//        handlerHeartBeatChecker.post(runnableCodeHeartBeatChecker);
 
     }
 
@@ -292,6 +329,23 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
         return false;
     }
 
+    //todo
+//    public void isAliveTimer() {
+//        final int interval = 20000; // 1 Second
+//        Handler handler = new Handler();
+//        Runnable runnable = new Runnable() {
+//            public void run() {
+//                if (isAliveTimerFlag) {
+//                    //end
+//                    isAliveTimerFlag = false;
+//                    hangUp();
+//                }
+//            }
+//        };
+//        handler.postAtTime(runnable, System.currentTimeMillis() + interval);
+//        handler.postDelayed(runnable, interval);
+//    }
+
     private Emitter.Listener onConnect = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
@@ -304,7 +358,30 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
         }
     };
 
-    boolean testFlag = true;
+
+    //todo
+//    private Emitter.Listener onHeartBeatMessage = new Emitter.Listener() {
+//        @Override
+//        public void call(final Object... args) {
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    String a = (String) args[0];
+//                    String[] b = a.split("-");
+//
+//                    if (b[0].equals(myRandomUniqueId)) {
+//                        if (b[2].equals("alive")) {
+//                            if (socketIO.isActive()) {
+//                                socketIO.emit("heartBeat", b[1] + "-" + myRandomUniqueId + "-" + "alive");
+//                                isAlive = true;
+//                            }
+//                        }
+//                    }
+//
+//                }
+//            });
+//        }
+//    };
 
     private Emitter.Listener onNewMessageClearDrawFunc = new Emitter.Listener() {
         @Override
@@ -331,6 +408,8 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
         }
     };
 
+    boolean testFlag = true;
+
     private Emitter.Listener onNewMessage = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
@@ -340,7 +419,7 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
                     String a = (String) args[0];
                     String[] b = a.split("-");
 
-                    if (b[0].equals(randomUniqueId)) {
+                    if (b[0].equals(destinationRandomUniqueId)) {
 
                         if (testFlag) {
                             testFlag = false;
@@ -447,14 +526,15 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
 
 //        Frame frame = arSceneView.getArFrame();
 
-        Bitmap surfaceBitmap = Bitmap.createBitmap(960, 540, Bitmap.Config.ARGB_8888);
-        PixelCopy.request(remote_view, surfaceBitmap, copyResult -> {
-        }, new Handler(Looper.getMainLooper()));
-
-        int mWidth = surfaceBitmap.getWidth();
-        int mHeight = surfaceBitmap.getHeight();
-
+        //todo Crash
         try {
+            Bitmap surfaceBitmap = Bitmap.createBitmap(960, 540, Bitmap.Config.ARGB_8888);
+            PixelCopy.request(remote_view, surfaceBitmap, copyResult -> {
+            }, new Handler(Looper.getMainLooper()));
+
+            int mWidth = surfaceBitmap.getWidth();
+            int mHeight = surfaceBitmap.getHeight();
+
             manager._peerHelper.captureAndroid.startCapture1(mWidth, mHeight, 30, bitmapToNv21(surfaceBitmap, mWidth, mHeight));
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -595,48 +675,8 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
         session.configure(config);
     }
 
-
-    @SuppressLint("ClickableViewAccessibility")
-    private void initListener() {
-        if (videoEnable) {
-            // 设置小视频可以移动
-//            local_view.setOnTouchListener((view, motionEvent) -> {
-//                switch (motionEvent.getAction()) {
-//                    case MotionEvent.ACTION_DOWN:
-//                        previewX = (int) motionEvent.getX();
-//                        previewY = (int) motionEvent.getY();
-//                        break;
-//                    case MotionEvent.ACTION_MOVE:
-//                        int x = (int) motionEvent.getX();
-//                        int y = (int) motionEvent.getY();
-//                        moveX = (int) motionEvent.getX();
-//                        moveY = (int) motionEvent.getY();
-//                        RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) local_view.getLayoutParams();
-//                        lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 0); // Clears the rule, as there is no removeRule until API 17.
-//                        lp.addRule(RelativeLayout.ALIGN_PARENT_END, 0);
-//                        lp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-//                        lp.addRule(RelativeLayout.ALIGN_PARENT_START, 0);
-//                        int left = lp.leftMargin + (x - previewX);
-//                        int top = lp.topMargin + (y - previewY);
-//                        lp.leftMargin = left;
-//                        lp.topMargin = top;
-//                        view.setLayoutParams(lp);
-//                        break;
-//                    case MotionEvent.ACTION_UP:
-//                        if (moveX == 0 && moveY == 0) {
-//                            view.performClick();
-//                        }
-//                        moveX = 0;
-//                        moveY = 0;
-//                        break;
-//                }
-//                return true;
-//            });
-        }
-    }
-
     private void setSwappedFeeds(boolean isSwappedFeeds) {
-        this.isSwappedFeeds = isSwappedFeeds;
+//        this.isSwappedFeeds = isSwappedFeeds;
 //        localRender.setTarget(isSwappedFeeds ? remote_view : local_view);
 //        remoteRender.setTarget(isSwappedFeeds ? local_view : remote_view);
         remoteRender.setTarget(remote_view);
@@ -696,7 +736,6 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
 
     }
 
-
     //    @Override
 //    public boolean onKeyDown(int keyCode, KeyEvent event) {
 //        return keyCode == KeyEvent.KEYCODE_BACK || super.onKeyDown(keyCode, event);
@@ -731,7 +770,7 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
     // 挂断
     public void hangUp() {
         disConnect();
-        this.finish();
+        finish();
     }
 
     // 静音
@@ -762,12 +801,31 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
 
     @Override
     protected void onDestroy() {
+        AndroidNetworking.post("http://192.168.0.13:3000/api/Profile/profileendcall")
+                .addQueryParameter("randomUniqueId", myRandomUniqueId)
+                .addQueryParameter("calling", "false")
+                .setTag("ProfileEndCall")
+                .setPriority(Priority.HIGH)
+                .build()
+                .getAsJSONObject(new JSONObjectRequestListener() {
+                    @Override
+                    public void onResponse(JSONObject jsonObject) {
+                    }
+
+                    @Override
+                    public void onError(ANError anError) {
+                        Toast.makeText(getApplicationContext(), "please check your connection", Toast.LENGTH_SHORT).show();
+                    }
+                });
         disConnect();
         super.onDestroy();
 
     }
 
     private void disConnect() {
+
+//        handlerHeartBeatChecker.removeCallbacksAndMessages(null);
+
         manager.exitRoom();
 //        if (localRender != null) {
 //            localRender.setTarget(null);
@@ -792,6 +850,7 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         for (int i = 0; i < permissions.length; i++) {
             Log.i(PeerConnectionHelper.TAG, "[Permission] " + permissions[i] + " is " + (grantResults[i] == PackageManager.PERMISSION_GRANTED ? "granted" : "denied"));
             if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {

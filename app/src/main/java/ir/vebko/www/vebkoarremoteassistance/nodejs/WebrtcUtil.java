@@ -102,7 +102,7 @@ public class WebrtcUtil {
                                         .getAsJSONObject(new JSONObjectRequestListener() {
                                             @Override
                                             public void onResponse(JSONObject response) {
-                                                ChatSingleActivity.openActivity(activity, videoEnable, roomId, imei, destinationTokenRegistrationFCM, myCustomName, lastName, phoneNumber);
+                                                ChatSingleActivity.openActivity(activity, videoEnable, roomId, randomUniqueId, imei, destinationTokenRegistrationFCM, myCustomName, lastName, phoneNumber);
                                             }
                                             @Override
                                             public void onError(ANError error) {

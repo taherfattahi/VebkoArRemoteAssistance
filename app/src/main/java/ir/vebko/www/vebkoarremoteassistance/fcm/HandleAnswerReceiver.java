@@ -11,6 +11,8 @@ import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
 
+import com.androidnetworking.AndroidNetworking;
+
 import ir.vebko.www.vebkoarremoteassistance.nodejs.WebrtcUtil;
 
 /**
@@ -29,6 +31,8 @@ public class HandleAnswerReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
 //        Toast.makeText(context, "Notification Dialog Closed", Toast.LENGTH_LONG).show();
 //        Log.d("Notification:", "Notification Dialog Closed");
+
+        AndroidNetworking.initialize(context);
 
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         manager.cancel(1);

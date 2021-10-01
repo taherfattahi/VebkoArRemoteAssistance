@@ -8,34 +8,54 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.androidnetworking.AndroidNetworking;
+import com.androidnetworking.common.Priority;
+import com.androidnetworking.error.ANError;
+import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.dds.webrtclib.IViewCallback;
 import com.dds.webrtclib.PeerConnectionHelper;
 import com.dds.webrtclib.ProxyVideoSink;
 import com.dds.webrtclib.R;
 import com.dds.webrtclib.WebRTCManager;
+import com.dds.webrtclib.ar.Stroke;
+import com.dds.webrtclib.bean.MediaType;
+import com.dds.webrtclib.bean.MyIceServer;
 import com.dds.webrtclib.utils.PermissionUtil;
+import com.dds.webrtclib.ws.IConnectEvent;
+import com.google.ar.core.Pose;
+import com.google.ar.core.TrackingState;
+import com.google.ar.sceneform.AnchorNode;
+import com.google.ar.sceneform.Camera;
+import com.google.ar.sceneform.collision.Ray;
+import com.google.ar.sceneform.math.Vector3;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.webrtc.EglBase;
 import org.webrtc.MediaStream;
 import org.webrtc.RendererCommon;
 import org.webrtc.SurfaceViewRenderer;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
 
 
 /**
@@ -61,21 +81,48 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
 
     public String myRandomUniqueId;
 
-    private Socket mSocket;
-    {
-        try {
-//            mSocket = IO.socket("http://185.208.172.104:3001");
-            mSocket = IO.socket("http://192.168.0.13:3001");
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-    }
+//    private boolean isAlive = true;
+//    private boolean isAliveTimerFlag = false;
+//    private boolean reCallFlag = false;
+
+    private static Socket socketIO = null;
+//    private Handler handlerHeartBeatChecker;
+
+//    private Socket mSocket;
+//    {
+//        try {
+////            mSocket = IO.socket("http://185.208.172.104:3001");
+//            mSocket = IO.socket("http://192.168.0.13:3001");
+//        } catch (URISyntaxException e) {
+//            e.printStackTrace();
+//        }
+//    }
+
+    public static final String HOST = "136.243.172.245";
+
+    // signalling
+    private String signalIp = "ws://185.208.172.104:3000/ws";
+
+    // turn and stun
+    private static MyIceServer[] iceServers = {
+            new MyIceServer("stun:stun.l.google.com:19302"),
+
+            new MyIceServer("stun:" + HOST + ":3478?transport=udp"),
+            new MyIceServer("turn:" + HOST + ":3478?transport=udp",
+                    "test",
+                    "test123"),
+            new MyIceServer("turn:" + HOST + ":3478?transport=tcp",
+                    "test",
+                    "test123"),
+    };
 
     public static void openActivity(Context activity, boolean videoEnable, String roomId) {
         Intent intent = new Intent(activity, ChatSingleReceiveActivity.class);
         intent.putExtra("videoEnable", videoEnable);
         intent.putExtra("myRandomUniqueId", roomId);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         activity.startActivity(intent);
     }
 
@@ -93,7 +140,6 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
         notificationManager.cancel(1);
 
         initVar();
-        initListener();
 
 //        local_view.setVisibility(View.GONE);
     }
@@ -129,7 +175,17 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
 //            local_view.setOnClickListener(v -> setSwappedFeeds(!isSwappedFeeds));
         }
 
-        mSocket.connect();
+        try {
+            socketIO = IO.socket("http://192.168.0.13:3001");
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+
+        socketIO.on(Socket.EVENT_CONNECT, onConnect);
+//        socketIO.on("heartBeatPusher", onHeartBeatMessage);
+//        socketIO.on("reCallPusher", onReCallMessage);
+
+        socketIO.connect();
 
         remote_view.setOnTouchListener(new View.OnTouchListener() {
 
@@ -155,7 +211,7 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
                         int yMove1 = (int) event.getY();
 
 //
-                        mSocket.emit("positionPlayer", myRandomUniqueId + "-" + xMove1 + "-" + yMove1 + "-" + "down" + "-" + width + "-" + height);
+                        socketIO.emit("positionPlayer", myRandomUniqueId + "-" + xMove1 + "-" + yMove1 + "-" + "down" + "-" + width + "-" + height);
                         break;
                     case MotionEvent.ACTION_MOVE:
                         Log.i("TAG", "moving: (" + x + ", " + y + ")");
@@ -164,7 +220,7 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
                         int yMove = (int) event.getY();
 
                         if (zz % 2 == 0) {
-                            mSocket.emit("positionPlayer", myRandomUniqueId + "-" + xMove + "-" + yMove + "-" + "move" + "-" + width + "-" + height);
+                            socketIO.emit("positionPlayer", myRandomUniqueId + "-" + xMove + "-" + yMove + "-" + "move" + "-" + width + "-" + height);
                         }
                         zz++;
                         break;
@@ -180,46 +236,168 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
 
         startCall();
 
+//        handlerHeartBeatChecker = new Handler();
+//        // Define the code block to be executed
+//        Runnable runnableCodeHeartBeatChecker = new Runnable() {
+//            @Override
+//            public void run() {
+//                // Do something here on the main thread
+//                Log.d("Handlers", "Called on main thread: Receiving  " + socketIO.isActive());
+//
+//                if (!isAlive) {
+//                    if (!isAliveTimerFlag) {
+//                        isAliveTimerFlag = true;
+//                        isAliveTimer();
+//                    }
+//                }
+//                if (isConnected()) {
+//                    if (isAlive) {
+//
+//                        if (reCallFlag) {
+//                            hangUp();
+//
+//                            WebRTCManager.getInstance().init(signalIp, iceServers, new IConnectEvent() {
+//                                @Override
+//                                public void onSuccess() {
+////                                    ChatSingleReceiveActivity.openActivity(ChatSingleReceiveActivity.this, videoEnable, myRandomUniqueId);
+//                                    finish();
+//                                    overridePendingTransition(0, 0);
+//                                    startActivity(getIntent());
+//                                    overridePendingTransition(0, 0);
+//                                }
+//
+//                                @Override
+//                                public void onFailed(String msg) {
+//
+//                                }
+//                            });
+//
+//                            //todo randomUniqueId
+//                            WebRTCManager.getInstance().connect(videoEnable ? MediaType.TYPE_VIDEO : MediaType.TYPE_AUDIO, myRandomUniqueId);
+//                        }
+//
+//                        if (isAliveTimerFlag) {
+//                            isAliveTimerFlag = false;
+//                            //recalling
+//
+//                            hangUp();
+//
+//                            WebRTCManager.getInstance().init(signalIp, iceServers, new IConnectEvent() {
+//                                @Override
+//                                public void onSuccess() {
+//                                    ChatSingleReceiveActivity.openActivity(ChatSingleReceiveActivity.this, videoEnable, myRandomUniqueId);
+//                                }
+//
+//                                @Override
+//                                public void onFailed(String msg) {
+//
+//                                }
+//                            });
+//
+//                            //todo randomUniqueId
+//                            WebRTCManager.getInstance().connect(videoEnable ? MediaType.TYPE_VIDEO : MediaType.TYPE_AUDIO, myRandomUniqueId);
+//
+//                        }
+//                    }
+//                } else {
+//                    isAlive = false;
+//                }
+//
+//                // Repeat this the same runnable code block again another 2 seconds
+//                // 'this' is referencing the Runnable object
+//                handlerHeartBeatChecker.postDelayed(this, 2000);
+//            }
+//        };
+//        // Start the initial runnable task by posting through the handler
+//        handlerHeartBeatChecker.post(runnableCodeHeartBeatChecker);
+
     }
 
-    @SuppressLint("ClickableViewAccessibility")
-    private void initListener() {
-        if (videoEnable) {
-            // 设置小视频可以移动
-//            local_view.setOnTouchListener((view, motionEvent) -> {
-//                switch (motionEvent.getAction()) {
-//                    case MotionEvent.ACTION_DOWN:
-//                        previewX = (int) motionEvent.getX();
-//                        previewY = (int) motionEvent.getY();
-//                        break;
-//                    case MotionEvent.ACTION_MOVE:
-//                        int x = (int) motionEvent.getX();
-//                        int y = (int) motionEvent.getY();
-//                        moveX = (int) motionEvent.getX();
-//                        moveY = (int) motionEvent.getY();
-//                        RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) local_view.getLayoutParams();
-//                        lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 0); // Clears the rule, as there is no removeRule until API 17.
-//                        lp.addRule(RelativeLayout.ALIGN_PARENT_END, 0);
-//                        lp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-//                        lp.addRule(RelativeLayout.ALIGN_PARENT_START, 0);
-//                        int left = lp.leftMargin + (x - previewX);
-//                        int top = lp.topMargin + (y - previewY);
-//                        lp.leftMargin = left;
-//                        lp.topMargin = top;
-//                        view.setLayoutParams(lp);
-//                        break;
-//                    case MotionEvent.ACTION_UP:
-//                        if (moveX == 0 && moveY == 0) {
-//                            view.performClick();
-//                        }
-//                        moveX = 0;
-//                        moveY = 0;
-//                        break;
-//                }
-//                return true;
-//            });
+    public boolean isConnected() {
+        String command = "ping -c 1 google.com";
+        try {
+            return Runtime.getRuntime().exec(command).waitFor() == 0;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        return false;
     }
+
+    //todo
+//    public void isAliveTimer() {
+//        final int interval = 20000; // 1 Second
+//        Handler handler = new Handler();
+//        Runnable runnable = new Runnable() {
+//            public void run() {
+//                if (isAliveTimerFlag) {
+//                    //end
+//                    isAliveTimerFlag = false;
+//                    hangUp();
+//                }
+//            }
+//        };
+//        handler.postAtTime(runnable, System.currentTimeMillis() + interval);
+//        handler.postDelayed(runnable, interval);
+//    }
+
+
+    private Emitter.Listener onConnect = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            try {
+                Log.d("TAG", "SocketIO Connected");
+//                JSONObject jsonObj = new JSONObject();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    };
+
+
+    //todo
+//    private Emitter.Listener onHeartBeatMessage = new Emitter.Listener() {
+//        @Override
+//        public void call(final Object... args) {
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    String a = (String) args[0];
+//                    String[] b = a.split("-");
+//
+//                    if (b[0].equals(myRandomUniqueId)) {
+//                        if (b[2].equals("alive")) {
+//                            if (socketIO.isActive()) {
+//                                socketIO.emit("heartBeat", b[1] + "-" + myRandomUniqueId + "-" + "alive");
+//                                isAlive = true;
+//                            }
+//                        }
+//                    }
+//
+//                }
+//            });
+//        }
+//    };
+//
+//    private Emitter.Listener onReCallMessage = new Emitter.Listener() {
+//        @Override
+//        public void call(final Object... args) {
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    String a = (String) args[0];
+//                    String[] b = a.split("-");
+//
+//                    if (b[0].equals(myRandomUniqueId)) {
+//                        reCallFlag = true;
+//                    }
+//
+//                }
+//            });
+//        }
+//    };
+
 
     private void setSwappedFeeds(boolean isSwappedFeeds) {
         this.isSwappedFeeds = isSwappedFeeds;
@@ -240,6 +418,42 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
                 if (videoEnable) {
                     stream.videoTracks.get(0).setEnabled(true);
                 }
+
+                AndroidNetworking.post("http://192.168.0.13:3000/api/Profile/callingprofile")
+                        .addQueryParameter("randomUniqueId", myRandomUniqueId)
+                        .addQueryParameter("destinationRandomUniqueId", "")
+                        .addQueryParameter("calling", "true")
+                        .setTag("CallingProfile")
+                        .setPriority(Priority.HIGH)
+                        .build()
+                        .getAsJSONObject(new JSONObjectRequestListener() {
+                            @Override
+                            public void onResponse(JSONObject jsonObject) {
+//                                try {
+////                                    WebrtcUtil.callSingle(NodejsActivity.this, NodejsActivity.this, signalIp,
+////                                            edtRemoteID.getText().toString().trim(),
+////                                            true, randomUniqueId, imeiUniqueID, jsonObject.getString("tokenRegistrationFCM"),
+////                                            jsonObject.getString("firstName"), firstName, lastName, phoneNumber);
+//                                } catch (JSONException e) {
+//                                    e.printStackTrace();
+//                                }
+                            }
+
+                            @Override
+                            public void onError(ANError anError) {
+                                anError.printStackTrace();
+//                                if (edtRemoteID.getText().toString().trim().length() == 0){
+//                                    Toast.makeText(getApplicationContext(), "please add correct ID", Toast.LENGTH_SHORT).show();
+//                                }else
+                                if (anError.getErrorBody().contains("Is Calling!!!!!!")) {
+                                    Toast.makeText(getApplicationContext(), "this user is calling", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(getApplicationContext(), "please check your connection", Toast.LENGTH_SHORT).show();
+                                }
+
+
+                            }
+                        });
             }
 
             @Override
@@ -256,6 +470,7 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
 
             @Override
             public void onCloseWithId(String socketId) {
+
                 runOnUiThread(() -> {
                     disConnect();
                     ChatSingleReceiveActivity.this.finish();
@@ -266,7 +481,6 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
         if (!PermissionUtil.isNeedRequestPermission(ChatSingleReceiveActivity.this)) {
             manager.joinRoom(getApplicationContext(), rootEglBase);
         }
-
     }
 
     private void replaceFragment(Fragment fragment, boolean videoEnable) {
@@ -300,17 +514,17 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
 
     // 切换摄像头
     public void clearDraw() {
-        mSocket.emit("clearDrawFunc", "clearDraw");
+        socketIO.emit("clearDrawFunc", "clearDraw");
     }
 
     public void changeColorDraw(int colorHex) {
-        mSocket.emit("changeColorDrawFunc", colorHex);
+        socketIO.emit("changeColorDrawFunc", colorHex);
     }
 
     // 挂断
     public void hangUp() {
         disConnect();
-        this.finish();
+        finish();
     }
 
     // 静音
@@ -324,13 +538,13 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
 
     }
 
-    public void toggleBlueToothOn(boolean enable){
-        if (enable){
-            if (manager._peerHelper.mAudioManager.isBluetoothA2dpOn()){
+    public void toggleBlueToothOn(boolean enable) {
+        if (enable) {
+            if (manager._peerHelper.mAudioManager.isBluetoothA2dpOn()) {
                 manager._peerHelper.mAudioManager.startBluetoothSco();
                 manager._peerHelper.mAudioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
             }
-        }else{
+        } else {
 //            if (manager._peerHelper.mAudioManager.isBluetoothScoOn()){
             manager._peerHelper.mAudioManager.stopBluetoothSco();
             manager.toggleSpeaker(true);
@@ -341,12 +555,31 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        AndroidNetworking.post("http://192.168.0.13:3000/api/Profile/profileendcall")
+                .addQueryParameter("randomUniqueId", myRandomUniqueId)
+                .addQueryParameter("calling", "false")
+                .setTag("ProfileEndCall")
+                .setPriority(Priority.HIGH)
+                .build()
+                .getAsJSONObject(new JSONObjectRequestListener() {
+                    @Override
+                    public void onResponse(JSONObject jsonObject) {
+                    }
+
+                    @Override
+                    public void onError(ANError anError) {
+                        Toast.makeText(getApplicationContext(), "please check your connection", Toast.LENGTH_SHORT).show();
+                    }
+                });
         disConnect();
         super.onDestroy();
 
     }
 
     private void disConnect() {
+
+//        handlerHeartBeatChecker.removeCallbacksAndMessages(null);
+
         manager.exitRoom();
 //        if (localRender != null) {
 //            localRender.setTarget(null);
@@ -370,6 +603,7 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         for (int i = 0; i < permissions.length; i++) {
             Log.i(PeerConnectionHelper.TAG, "[Permission] " + permissions[i] + " is " + (grantResults[i] == PackageManager.PERMISSION_GRANTED ? "granted" : "denied"));
             if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {

@@ -383,18 +383,17 @@ public class NodejsActivity extends AppCompatActivity {
                         .addQueryParameter("randomUniqueId", randomUniqueId)
                         .addQueryParameter("destinationRandomUniqueId", edtRemoteID.getText().toString().trim())
                         .addQueryParameter("calling", "true")
-                        .setTag("getProfileUniqueId")
+                        .setTag("CallingProfile")
                         .setPriority(Priority.HIGH)
                         .build()
-                        .getAsJSONArray(new JSONArrayRequestListener() {
+                        .getAsJSONObject(new JSONObjectRequestListener() {
                             @Override
-                            public void onResponse(JSONArray jsonArray) {
+                            public void onResponse(JSONObject jsonObject) {
                                 try {
-                                    WebrtcUtil.callSingle(NodejsActivity.this, NodejsActivity.this,
-                                            signalIp,
+                                    WebrtcUtil.callSingle(NodejsActivity.this, NodejsActivity.this, signalIp,
                                             edtRemoteID.getText().toString().trim(),
-                                            true, randomUniqueId, imeiUniqueID, ((JSONObject)jsonArray.get(1)).getString("tokenRegistrationFCM"),
-                                            ((JSONObject)jsonArray.get(1)).getString("firstName"), firstName, lastName, phoneNumber);
+                                            true, randomUniqueId, imeiUniqueID, jsonObject.getString("tokenRegistrationFCM"),
+                                            jsonObject.getString("firstName"), firstName, lastName, phoneNumber);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
