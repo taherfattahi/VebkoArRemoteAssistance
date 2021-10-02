@@ -11,6 +11,10 @@ import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
 
+import java.net.URISyntaxException;
+
+import io.socket.client.IO;
+import io.socket.client.Socket;
 import ir.vebko.www.vebkoarremoteassistance.nodejs.WebrtcUtil;
 
 /**
@@ -24,6 +28,7 @@ public class HandleDeclineReceiver extends BroadcastReceiver {
     private static final String PREF_IMEI_UNIQUE_ID = "PREF_IMEI_UNIQUE_ID";
 
     public String randomUniqueId;
+    private Socket socketIO = null;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -33,6 +38,14 @@ public class HandleDeclineReceiver extends BroadcastReceiver {
 
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         manager.cancel(1);
+
+        try {
+            socketIO = IO.socket("http://172.20.10.4:3001");
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+
+        socketIO.emit("declineCall", intent.getStringExtra("destinationRandomUniqueId") + "-" + "decline");
 
 //        PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, new Intent(), 0);
 //        NotificationCompat.Builder mb = new NotificationCompat.Builder(context);

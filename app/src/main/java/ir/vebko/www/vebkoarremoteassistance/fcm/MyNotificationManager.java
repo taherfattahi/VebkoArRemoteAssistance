@@ -94,7 +94,7 @@ public class MyNotificationManager {
         notificationManagerCompat.notify(notificationId, builder.build());
     }
 
-    public void triggerNotificationWithBackStack(Class targetNotificationActivity, String channelId, String title, String text, String bigText, int priority, boolean autoCancel, int notificationId, int pendingIntentFlag) {
+    public void triggerNotificationWithBackStack(Class targetNotificationActivity, String channelId, String title, String text, String destinationRandomUniqueId, int priority, boolean autoCancel, int notificationId, int pendingIntentFlag) {
 
 
 //        Intent intent = new Intent(context, targetNotificationActivity);
@@ -136,6 +136,7 @@ public class MyNotificationManager {
         //Create an Intent for the BroadcastReceiver
         Intent intentDecline = new Intent(context, HandleDeclineReceiver.class);
         Intent intentAnswer = new Intent(context, HandleAnswerReceiver.class);
+        intentDecline.putExtra("destinationRandomUniqueId", destinationRandomUniqueId);
         //Create the PendingIntent
 
         PendingIntent pIntentDecline = PendingIntent.getBroadcast(context, 0, intentDecline, 0);
@@ -156,7 +157,7 @@ public class MyNotificationManager {
                     .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.phone_call_icon))
                     .setContentTitle(title)
                     .setContentText(text)
-                    .setStyle(new NotificationCompat.BigTextStyle().bigText(bigText))
+//                    .setStyle(new NotificationCompat.BigTextStyle().bigText(bigText))
 //                    .setPriority(NotificationCompat.PRIORITY_MAX)
 //                    .setCategory(NotificationCompat.CATEGORY_CALL)
                     .addAction(R.mipmap.ic_launcher_round, "Decline", pIntentDecline)
@@ -175,7 +176,7 @@ public class MyNotificationManager {
                     .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.phone_call_icon))
                     .setContentTitle(title)
                     .setContentText(text)
-                    .setStyle(new NotificationCompat.BigTextStyle().bigText(bigText))
+//                    .setStyle(new NotificationCompat.BigTextStyle().bigText(bigText))
 //                    .setPriority(NotificationCompat.PRIORITY_MAX)
 //                    .setCategory(NotificationCompat.CATEGORY_CALL)
                     .addAction(R.mipmap.ic_launcher_round, "Decline", pIntentDecline)

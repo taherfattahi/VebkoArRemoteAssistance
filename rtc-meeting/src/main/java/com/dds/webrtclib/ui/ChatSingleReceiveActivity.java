@@ -599,11 +599,11 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
 
     // 切换摄像头
     public void clearDraw() {
-        socketIO.emit("clearDrawFunc", "clearDraw");
+        socketIO.emit("clearDrawFunc", myRandomUniqueId + "-" + "clearDraw");
     }
 
     public void changeColorDraw(int colorHex) {
-        socketIO.emit("changeColorDrawFunc", colorHex);
+        socketIO.emit("changeColorDrawFunc", myRandomUniqueId + "-" + colorHex);
     }
 
     // 挂断

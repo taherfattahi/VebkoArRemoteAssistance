@@ -93,8 +93,8 @@ public class WebrtcUtil {
                                         jsonObjectData.put("body", "");
                                     }
                                     jsonObjectData.put("title", "Incoming Video Call");
-                                    jsonObjectData.put("key_1", "Value for key_1");
-                                    jsonObjectData.put("key_2", "Value for key_2");
+                                    jsonObjectData.put("sender_random_unique_id", roomId);
+//                                    jsonObjectData.put("key_2", "Value for key_2");
 
                                     jsonObjectProfile.put("data", jsonObjectData);
                                 } catch (JSONException e) {

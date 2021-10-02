@@ -15,6 +15,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import ir.vebko.www.vebkoarremoteassistance.fcm.MyNotificationManager;
 
 public class MyApplication extends Application {
+
     private static final String TAG = "MyApplication";
 
 

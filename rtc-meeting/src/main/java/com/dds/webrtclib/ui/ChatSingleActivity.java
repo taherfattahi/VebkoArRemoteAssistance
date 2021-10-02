@@ -244,6 +244,7 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
 
         socketIO.on(Socket.EVENT_CONNECT, onConnect);
         socketIO.on("positionPusher", onNewMessage);
+        socketIO.on("declineCallPusher", onNewMessageDeclineCallPusher);
 //        socketIO.on("heartBeatPusher", onHeartBeatMessage);
         socketIO.on("clearDrawFunc", onNewMessageClearDrawFunc);
         socketIO.on("changeColorDrawFunc", onNewMessageChangeColorDrawFunc);
@@ -418,6 +419,25 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
         }
     };
 
+    private Emitter.Listener onNewMessageDeclineCallPusher = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    String a = (String) args[0];
+                    String[] b = a.split("-");
+
+                    if (b[0].equals(destinationRandomUniqueId)) {
+                        hangUp();
+                    }
+//                    int a = (int) args[0];
+//                    changeColorDraw(a);
+                }
+            });
+        }
+    };
+
     //todo
 //    private Emitter.Listener onHeartBeatMessage = new Emitter.Listener() {
 //        @Override
@@ -448,7 +468,12 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    clearDraw();
+                    String a = (String) args[0];
+                    String[] b = a.split("-");
+
+                    if (b[0].equals(destinationRandomUniqueId)) {
+                        clearDraw();
+                    }
                 }
             });
         }
@@ -460,8 +485,13 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    int a = (int) args[0];
-                    changeColorDraw(a);
+//                    int a = (int) args[0];
+                    String a = (String) args[0];
+                    String[] b = a.split("-");
+
+                    if (b[0].equals(destinationRandomUniqueId)) {
+                        changeColorDraw(Integer.parseInt(b[1]));
+                    }
                 }
             });
         }
