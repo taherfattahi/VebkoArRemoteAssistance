@@ -89,7 +89,7 @@ public class ProfileActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                AndroidNetworking.patch("http://192.168.0.13:3000/api/Profile/updateprofile")
+                AndroidNetworking.patch("http://172.20.10.4:3000/api/Profile/updateprofile")
                         .addJSONObjectBody(jsonObjectProfile)
                         .setTag("updateprofile")
                         .setPriority(Priority.HIGH)

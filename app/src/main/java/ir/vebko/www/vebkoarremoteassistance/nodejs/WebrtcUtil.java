@@ -46,7 +46,7 @@ public class WebrtcUtil {
 
     // one to one
     public static void callSingle(Activity activity, NodejsActivity nodejsActivity, String wss, String roomId, boolean videoEnable,
-                                  String randomUniqueId, String imei, String destinationTokenRegistrationFCM, String destinationCustomName, String myCustomName, String lastName, String phoneNumber) {
+                                  String randomUniqueId, String imei, String destinationTokenRegistrationFCM, String destinationCustomName, String myCustomName, String secondCustomName, String lastName, String phoneNumber) {
         if (TextUtils.isEmpty(wss)) {
             wss = WSS;
         }
@@ -65,7 +65,7 @@ public class WebrtcUtil {
                     e.printStackTrace();
                 }
 
-                AndroidNetworking.post("http://192.168.0.13:3000/api/Contact")
+                AndroidNetworking.post("http://172.20.10.4:3000/api/Contact")
                         .addJSONObjectBody(jsonObjectContact) // posting json
                         .setTag("AddContact")
                         .setPriority(Priority.HIGH)
@@ -83,7 +83,15 @@ public class WebrtcUtil {
                                     jsonObjectProfile.put("to", destinationTokenRegistrationFCM);
                                     jsonObjectProfile.put("collapse_key", "news");
 
-                                    jsonObjectData.put("body", "Body of Your Notification in Data");
+                                    if (secondCustomName != null) {
+                                        if (!secondCustomName.equals("") && !secondCustomName.equals("null")){
+                                            jsonObjectData.put("body", "From: " + secondCustomName);
+                                        }else{
+                                            jsonObjectData.put("body", "");
+                                        }
+                                    }else{
+                                        jsonObjectData.put("body", "");
+                                    }
                                     jsonObjectData.put("title", "Incoming Video Call");
                                     jsonObjectData.put("key_1", "Value for key_1");
                                     jsonObjectData.put("key_2", "Value for key_2");

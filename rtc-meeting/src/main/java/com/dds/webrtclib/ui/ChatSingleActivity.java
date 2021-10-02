@@ -122,8 +122,9 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
     private final ArrayList<Stroke> strokes = new ArrayList<>();
     private Stroke currentStroke;
 
-    private static Socket socketIO = null;
+    private Socket socketIO = null;
 //    private Handler handlerHeartBeatChecker;
+//    private Runnable runnableCodeHeartBeatChecker;
 
     private int widthMain;
     private int heightMain;
@@ -142,6 +143,8 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
 
 //    private boolean isAlive = true;
 //    private boolean isAliveTimerFlag = false;
+    private static boolean active = false;
+
 
     public static final String HOST = "136.243.172.245";
 
@@ -160,7 +163,6 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
                     "test",
                     "test123"),
     };
-
 
     public static void openActivity(Activity activity, boolean videoEnable, String destinationRandomUniqueId, String myRandomUniqueId, String imei, String destinationTokenRegistrationFCM, String firstName, String lastName, String phoneNumber) {
         Intent intent = new Intent(activity, ChatSingleActivity.class);
@@ -235,7 +237,7 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
 
         //todo
         try {
-            socketIO = IO.socket("http://192.168.0.13:3001");
+            socketIO = IO.socket("http://172.20.10.4:3001");
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
@@ -258,53 +260,57 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
         //todo
 //        handlerHeartBeatChecker = new Handler();
 //        // Define the code block to be executed
-//        Runnable runnableCodeHeartBeatChecker = new Runnable() {
+//        runnableCodeHeartBeatChecker = new Runnable() {
 //            @Override
 //            public void run() {
 //                // Do something here on the main thread
 //                Log.d("Handlers", "Called on main thread: " + socketIO.isActive());
 //
-//                if (!isAlive) {
-//                    if (!isAliveTimerFlag) {
-////                        isDestroyConnection = true;
-//                        isAliveTimerFlag = true;
-//                        isAliveTimer();
-//                    }
-//                }
-//                if (isConnected()) {
-//                    if (socketIO.isActive()) {
-//                        socketIO.emit("heartBeat", destinationRandomUniqueId + "-" + myRandomUniqueId + "-" + "alive");
-//                    }
-//                    if (isAlive) {
-//                        if (isAliveTimerFlag) {
-//                            isAliveTimerFlag = false;
-//                            //recalling
 //
-//                            socketIO.emit("reCall", destinationRandomUniqueId + "-" + "reCall");
+//                if (active) {
 //
-//                            hangUp();
+//                    if (isConnected()) {
+//                        if (socketIO.isActive()) {
+//                            socketIO.emit("heartBeat", destinationRandomUniqueId + "-" + myRandomUniqueId + "-" + "alive");
+//                        }
+//                        if (isAlive) {
+//                            if (isAliveTimerFlag) {
+//                                isAliveTimerFlag = false;
+//                                //recalling
 //
-//                            WebRTCManager.getInstance().init(signalIp, iceServers, new IConnectEvent() {
-//                                @Override
-//                                public void onSuccess() {
-//                                    ChatSingleActivity.openActivity(ChatSingleActivity.this, videoEnable, destinationRandomUniqueId, myRandomUniqueId, imeiUniqueID, destinationTokenRegistrationFCM, firstName, lastName, phoneNumber);
+////                                socketIO.emit("reCall", destinationRandomUniqueId + "-" + "reCall");
+//
+////                            hangUp();
+//
+////                            WebRTCManager.getInstance().init(signalIp, iceServers, new IConnectEvent() {
+////                                @Override
+////                                public void onSuccess() {
+////                                    ChatSingleActivity.openActivity(ChatSingleActivity.this, videoEnable, destinationRandomUniqueId, myRandomUniqueId, imeiUniqueID, destinationTokenRegistrationFCM, firstName, lastName, phoneNumber);
 ////                                    finish();
 ////                                    overridePendingTransition(0, 0);
 ////                                    startActivity(getIntent());
 ////                                    overridePendingTransition(0, 0);
-//                                }
 //
-//                                @Override
-//                                public void onFailed(String msg) {
 //
-//                                }
-//                            });
+////                                }
 //
-//                            WebRTCManager.getInstance().connect(videoEnable ? MediaType.TYPE_VIDEO : MediaType.TYPE_AUDIO, destinationRandomUniqueId);
+////                                @Override
+////                                public void onFailed(String msg) {
+////
+////                                }
+////                            });
+////
+////                            WebRTCManager.getInstance().connect(videoEnable ? MediaType.TYPE_VIDEO : MediaType.TYPE_AUDIO, destinationRandomUniqueId);
+//                            }
+//                        }
+//                    } else {
+//                        isAlive = false;
+//                        if (!isAliveTimerFlag) {
+////                        isDestroyConnection = true;
+//                            isAliveTimerFlag = true;
+//                            isAliveTimer();
 //                        }
 //                    }
-//                } else {
-//                    isAlive = false;
 //                }
 //
 //                // Repeat this the same runnable code block again another 2 seconds
@@ -316,6 +322,19 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
 //        handlerHeartBeatChecker.post(runnableCodeHeartBeatChecker);
 
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        active = true;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        active = false;
+    }
+
 
     public boolean isConnected() {
         String command = "ping -c 1 google.com";
@@ -331,15 +350,56 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
 
     //todo
 //    public void isAliveTimer() {
-//        final int interval = 20000; // 1 Second
+//
+//
+////        Intent intent = new Intent(ChatSingleActivity.this, ReconnectActivity.class);
+////        intent.putExtra("videoEnable", videoEnable);
+////        intent.putExtra("destinationRandomUniqueId", destinationRandomUniqueId);
+////        intent.putExtra("myRandomUniqueId", myRandomUniqueId);
+////        intent.putExtra("imei", imeiUniqueID);
+////        intent.putExtra("destinationTokenRegistrationFCM", destinationTokenRegistrationFCM);
+////        intent.putExtra("firstName", firstName);
+////        intent.putExtra("lastName", lastName);
+////        intent.putExtra("phoneNumber", phoneNumber);
+////        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+////        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+////        //        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+////        startActivity(intent);
+////        this.finish();
+//
+//
+//        final int interval = 10000; // 1 Second
 //        Handler handler = new Handler();
 //        Runnable runnable = new Runnable() {
 //            public void run() {
-//                if (isAliveTimerFlag) {
-//                    //end
-//                    isAliveTimerFlag = false;
-//                    hangUp();
-//                }
+////                if (isAliveTimerFlag) {
+////                    //end
+////                    isAliveTimerFlag = false;
+////                    hangUp();
+////                }
+//                socketIO.emit("reCall", destinationRandomUniqueId + "-" + "reCall");
+//
+//                WebRTCManager.getInstance().init(signalIp, iceServers, new IConnectEvent() {
+//                    @Override
+//                    public void onSuccess() {
+//
+//                        handlerHeartBeatChecker.removeCallbacksAndMessages(runnableCodeHeartBeatChecker);
+//                        recreate();
+//
+////                        ChatSingleActivity.openActivity(ReconnectActivity.this, videoEnable, destinationRandomUniqueId, myRandomUniqueId, imeiUniqueID, destinationTokenRegistrationFCM, firstName, lastName, phoneNumber);
+////                        finish();
+////                                    overridePendingTransition(0, 0);
+////                                    startActivity(getIntent());
+////                                    overridePendingTransition(0, 0);
+//                    }
+//
+//                    @Override
+//                    public void onFailed(String msg) {
+//
+//                    }
+//                });
+//
+//                WebRTCManager.getInstance().connect(videoEnable ? MediaType.TYPE_VIDEO : MediaType.TYPE_AUDIO, "destinationRandomUniqueId");
 //            }
 //        };
 //        handler.postAtTime(runnable, System.currentTimeMillis() + interval);
@@ -357,7 +417,6 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
             }
         }
     };
-
 
     //todo
 //    private Emitter.Listener onHeartBeatMessage = new Emitter.Listener() {
@@ -463,7 +522,6 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
             });
         }
     };
-
 
     private Void handleMaterialError(Throwable throwable) {
         Toast toast = Toast.makeText(this, "Unable to create material", Toast.LENGTH_LONG);
@@ -801,7 +859,7 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
 
     @Override
     protected void onDestroy() {
-        AndroidNetworking.post("http://192.168.0.13:3000/api/Profile/profileendcall")
+        AndroidNetworking.post("http://172.20.10.4:3000/api/Profile/profileendcall")
                 .addQueryParameter("randomUniqueId", myRandomUniqueId)
                 .addQueryParameter("calling", "false")
                 .setTag("ProfileEndCall")
@@ -824,7 +882,7 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
 
     private void disConnect() {
 
-//        handlerHeartBeatChecker.removeCallbacksAndMessages(null);
+//        handlerHeartBeatChecker.removeCallbacksAndMessages(handlerHeartBeatChecker);
 
         manager.exitRoom();
 //        if (localRender != null) {

@@ -39,14 +39,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 getResources().getInteger(R.integer.notificationId),
                 PendingIntent.FLAG_UPDATE_CURRENT);*/
         Log.e(TAG, "onMessageReceived: " + remoteMessage.getData().get("title"));
-        Log.e(TAG, "onMessageReceived: " + remoteMessage.getData().get("content"));
+        Log.e(TAG, "onMessageReceived: " + remoteMessage.getData().get("body"));
         Log.e(TAG, "onMessageReceived: " + remoteMessage.getData().get("button"));
 
         ((MyApplication)getApplication()).triggerNotificationWithBackStack(NodejsActivity.class,
                 getString(R.string.NEWS_CHANNEL_ID),
                 //remoteMessage.getNotification().getTitle(),
+                remoteMessage.getData().get("body"),
                 remoteMessage.getData().get("title"),
-                remoteMessage.getData().get("content"),
                 remoteMessage.getData().get("content"),
                 NotificationCompat.PRIORITY_HIGH,
                 true,

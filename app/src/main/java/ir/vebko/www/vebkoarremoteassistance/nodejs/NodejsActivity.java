@@ -316,7 +316,7 @@ public class NodejsActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        AndroidNetworking.patch("http://192.168.0.13:3000/api/Contact/updatecontactcustomname")
+        AndroidNetworking.patch("http://172.20.10.4:3000/api/Contact/updatecontactcustomname")
                 .addJSONObjectBody(jsonObjectProfile) // posting json
                 .setTag("UpdateContactCustomName")
                 .setPriority(Priority.HIGH)
@@ -369,6 +369,7 @@ public class NodejsActivity extends AppCompatActivity {
             switch (ArCoreApk.getInstance().requestInstall(this, true)) {
                 case INSTALL_REQUESTED:
                     installRequested = true;
+                    Toast.makeText(getApplicationContext(), "please install ArCore dependency", Toast.LENGTH_SHORT).show();
                     return;
                 case INSTALLED:
                     break;
@@ -379,7 +380,7 @@ public class NodejsActivity extends AppCompatActivity {
 
         if (isGetDataFromServer) {
             if (edtRemoteID.getText().toString().trim().length() != 0 && !edtRemoteID.getText().toString().trim().equals(randomUniqueId)) {
-                AndroidNetworking.post("http://192.168.0.13:3000/api/Profile/callingprofile")
+                AndroidNetworking.post("http://172.20.10.4:3000/api/Profile/callingprofile")
                         .addQueryParameter("randomUniqueId", randomUniqueId)
                         .addQueryParameter("destinationRandomUniqueId", edtRemoteID.getText().toString().trim())
                         .addQueryParameter("calling", "true")
@@ -390,27 +391,54 @@ public class NodejsActivity extends AppCompatActivity {
                             @Override
                             public void onResponse(JSONObject jsonObject) {
                                 try {
-                                    WebrtcUtil.callSingle(NodejsActivity.this, NodejsActivity.this, signalIp,
-                                            edtRemoteID.getText().toString().trim(),
-                                            true, randomUniqueId, imeiUniqueID, jsonObject.getString("tokenRegistrationFCM"),
-                                            jsonObject.getString("firstName"), firstName, lastName, phoneNumber);
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
+                                    JSONObject jsonObject1;
+                                    JSONArray jsonArray = jsonObject.getJSONArray("contactData");
+                                    if (jsonArray.length() != 0) {
+                                        for (int i = 0; i < jsonArray.length(); i++) {
+                                            jsonObject1 = jsonArray.getJSONObject(i);
+                                            if (jsonObject1.getString("destinationRandomUniqueIdProfile").equals(edtRemoteID.getText().toString().trim()) && jsonObject1.getString("myRandomUniqueIdProfile").equals(randomUniqueId)) {
+                                                WebrtcUtil.callSingle(NodejsActivity.this, NodejsActivity.this, signalIp,
+                                                        edtRemoteID.getText().toString().trim(),
+                                                        true, randomUniqueId, imeiUniqueID, jsonObject.getString("tokenRegistrationFCM"),
+                                                        jsonObject.getString("firstName"), firstName, jsonObject1.getString("myCustomName"), lastName, phoneNumber);
+                                                break;
+                                            } else if (jsonObject1.getString("destinationRandomUniqueIdProfile").equals(randomUniqueId) && jsonObject1.getString("myRandomUniqueIdProfile").equals(edtRemoteID.getText().toString().trim())) {
+                                                WebrtcUtil.callSingle(NodejsActivity.this, NodejsActivity.this, signalIp,
+                                                        edtRemoteID.getText().toString().trim(),
+                                                        true, randomUniqueId, imeiUniqueID, jsonObject.getString("tokenRegistrationFCM"),
+                                                        jsonObject.getString("firstName"), firstName, jsonObject1.getString("destinationCustomName"), lastName, phoneNumber);
+                                                break;
+                                            }
+                                        }
+                                    } else {
+                                        WebrtcUtil.callSingle(NodejsActivity.this, NodejsActivity.this, signalIp,
+                                                edtRemoteID.getText().toString().trim(),
+                                                true, randomUniqueId, imeiUniqueID, jsonObject.getString("tokenRegistrationFCM"),
+                                                jsonObject.getString("firstName"), firstName, firstName, lastName, phoneNumber);
+                                    }
+                                } catch (Exception ex) {
+                                    try {
+                                        WebrtcUtil.callSingle(NodejsActivity.this, NodejsActivity.this, signalIp,
+                                                edtRemoteID.getText().toString().trim(),
+                                                true, randomUniqueId, imeiUniqueID, jsonObject.getString("tokenRegistrationFCM"),
+                                                jsonObject.getString("firstName"), firstName, firstName, lastName, phoneNumber);
+                                    } catch (JSONException e) {
+                                        Toast.makeText(getApplicationContext(), "please check your connection", Toast.LENGTH_SHORT).show();
+                                    }
                                 }
+
                             }
 
                             @Override
                             public void onError(ANError anError) {
                                 anError.printStackTrace();
-                                if (edtRemoteID.getText().toString().trim().length() == 0){
+                                if (edtRemoteID.getText().toString().trim().length() == 0) {
                                     Toast.makeText(getApplicationContext(), "please add correct ID", Toast.LENGTH_SHORT).show();
-                                }else if (anError.getErrorBody().contains("Is Calling!!!!!!")) {
+                                } else if (anError.getErrorBody().contains("Is Calling!!!!!!")) {
                                     Toast.makeText(getApplicationContext(), "this user is calling", Toast.LENGTH_SHORT).show();
-                                }
-                                else{
+                                } else {
                                     Toast.makeText(getApplicationContext(), "please check your connection", Toast.LENGTH_SHORT).show();
                                 }
-
 
                             }
                         });
@@ -433,7 +461,7 @@ public class NodejsActivity extends AppCompatActivity {
                 }
                 Log.i("Token:  ", "onComplete: The result: " + task.getResult().getToken());
 
-                AndroidNetworking.post("http://192.168.0.13:3000/api/Profile/getprofileimei")
+                AndroidNetworking.post("http://172.20.10.4:3000/api/Profile/getprofileimei")
                         .addQueryParameter("imei", myImeiUniqueID)
                         .addQueryParameter("tokenRegistrationFCM", task.getResult().getToken())
                         .addQueryParameter("calling", "false")
@@ -468,7 +496,7 @@ public class NodejsActivity extends AppCompatActivity {
                                                 Contact contact = new Contact();
                                                 contact.setName(jsonObject.getString("destinationRandomUniqueIdProfile"));
                                                 if (jsonObject.getString("destinationCustomName").equals("null")) {
-                                                    AndroidNetworking.post("http://192.168.0.13:3000/api/Profile/getprofileuniqueid")
+                                                    AndroidNetworking.post("http://172.20.10.4:3000/api/Profile/getprofileuniqueid")
                                                             .addQueryParameter("randomUniqueId", jsonObject.getString("destinationRandomUniqueIdProfile"))
                                                             .setTag("getProfileUniqueId")
                                                             .setPriority(Priority.HIGH)
@@ -500,7 +528,7 @@ public class NodejsActivity extends AppCompatActivity {
                                                 Contact contact = new Contact();
                                                 contact.setName(jsonObject.getString("myRandomUniqueIdProfile"));
                                                 if (jsonObject.getString("myCustomName").equals("null")) {
-                                                    AndroidNetworking.post("http://192.168.0.13:3000/api/Profile/getprofileuniqueid")
+                                                    AndroidNetworking.post("http://172.20.10.4:3000/api/Profile/getprofileuniqueid")
                                                             .addQueryParameter("randomUniqueId", jsonObject.getString("myRandomUniqueIdProfile"))
                                                             .setTag("getProfileUniqueId")
                                                             .setPriority(Priority.HIGH)
@@ -539,7 +567,7 @@ public class NodejsActivity extends AppCompatActivity {
 
                                     progressBar.hideProgressBar();
                                     progressBar.setVisibility(View.GONE);
-                                    mTitleRandomUniqueId.setText(randomUniqueId);
+                                    mTitleRandomUniqueId.setText("ID: " + randomUniqueId);
 
                                     isGetDataFromServer = true;
 
@@ -587,7 +615,7 @@ public class NodejsActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                AndroidNetworking.post("http://192.168.0.13:3000/api/Profile")
+                AndroidNetworking.post("http://172.20.10.4:3000/api/Profile")
                         .addJSONObjectBody(jsonObjectProfile) // posting json
                         .setTag("AddProfile")
                         .setPriority(Priority.HIGH)
@@ -621,7 +649,7 @@ public class NodejsActivity extends AppCompatActivity {
                                                 Contact contact = new Contact();
                                                 contact.setName(jsonObject.getString("destinationRandomUniqueIdProfile"));
                                                 if (jsonObject.getString("destinationCustomName").equals("null")) {
-                                                    AndroidNetworking.post("http://192.168.0.13:3000/api/Profile/getprofileuniqueid")
+                                                    AndroidNetworking.post("http://172.20.10.4:3000/api/Profile/getprofileuniqueid")
                                                             .addQueryParameter("randomUniqueId", jsonObject.getString("destinationRandomUniqueIdProfile"))
                                                             .setTag("getProfileUniqueId")
                                                             .setPriority(Priority.HIGH)
@@ -653,7 +681,7 @@ public class NodejsActivity extends AppCompatActivity {
                                                 Contact contact = new Contact();
                                                 contact.setName(jsonObject.getString("myRandomUniqueIdProfile"));
                                                 if (jsonObject.getString("myCustomName").equals("null")) {
-                                                    AndroidNetworking.post("http://192.168.0.13:3000/api/Profile/getprofileuniqueid")
+                                                    AndroidNetworking.post("http://172.20.10.4:3000/api/Profile/getprofileuniqueid")
                                                             .addQueryParameter("randomUniqueId", jsonObject.getString("myRandomUniqueIdProfile"))
                                                             .setTag("getProfileUniqueId")
                                                             .setPriority(Priority.HIGH)
@@ -690,7 +718,7 @@ public class NodejsActivity extends AppCompatActivity {
 
                                     progressBar.hideProgressBar();
                                     progressBar.setVisibility(View.GONE);
-                                    mTitleRandomUniqueId.setText(randomUniqueId);
+                                    mTitleRandomUniqueId.setText("ID: " + randomUniqueId);
 
                                     isGetDataFromServer = true;
 

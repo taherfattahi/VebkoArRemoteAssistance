@@ -8,7 +8,10 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
+import android.os.Looper;
+import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -84,9 +87,11 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
 //    private boolean isAlive = true;
 //    private boolean isAliveTimerFlag = false;
 //    private boolean reCallFlag = false;
+    private static boolean active = false;
 
     private static Socket socketIO = null;
 //    private Handler handlerHeartBeatChecker;
+//    private Runnable runnableCodeHeartBeatChecker;
 
 //    private Socket mSocket;
 //    {
@@ -144,7 +149,21 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
 //        local_view.setVisibility(View.GONE);
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        active = true;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        active = false;
+    }
+
+
     int zz = 0;
+//    CountDownTimer aaa;
 
     private void initVar() {
         Intent intent = getIntent();
@@ -176,7 +195,7 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
         }
 
         try {
-            socketIO = IO.socket("http://192.168.0.13:3001");
+            socketIO = IO.socket("http://172.20.10.4:3001");
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
@@ -236,71 +255,92 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
 
         startCall();
 
+//        aaa = new CountDownTimer(4000, 1000) {
+//            public void onTick(long millisUntilFinished) {
+////                                        mTextField.setText("seconds remaining: " + millisUntilFinished / 1000);
+//            }
+//
+//            public void onFinish() {
+////                                        mTextField.setText("done!");
+//                isAliveTimer();
+//            }
+//        };
+//
 //        handlerHeartBeatChecker = new Handler();
 //        // Define the code block to be executed
-//        Runnable runnableCodeHeartBeatChecker = new Runnable() {
+//        runnableCodeHeartBeatChecker = new Runnable() {
 //            @Override
 //            public void run() {
 //                // Do something here on the main thread
 //                Log.d("Handlers", "Called on main thread: Receiving  " + socketIO.isActive());
 //
-//                if (!isAlive) {
-//                    if (!isAliveTimerFlag) {
-//                        isAliveTimerFlag = true;
-//                        isAliveTimer();
-//                    }
-//                }
-//                if (isConnected()) {
-//                    if (isAlive) {
+//                if (active) {
+////                    if (!isAlive) {
+////                        if (!isAliveTimerFlag) {
+////                            isAliveTimerFlag = true;
+////                            isAliveTimer();
+////                        }
+////                    }
+//                    if (isConnected()) {
+//                        if (isAlive) {
 //
-//                        if (reCallFlag) {
-//                            hangUp();
+//                            if (reCallFlag) {
 //
-//                            WebRTCManager.getInstance().init(signalIp, iceServers, new IConnectEvent() {
-//                                @Override
-//                                public void onSuccess() {
-////                                    ChatSingleReceiveActivity.openActivity(ChatSingleReceiveActivity.this, videoEnable, myRandomUniqueId);
-//                                    finish();
-//                                    overridePendingTransition(0, 0);
-//                                    startActivity(getIntent());
-//                                    overridePendingTransition(0, 0);
-//                                }
+////                                hangUp();
+//                                isAliveTimer();
 //
-//                                @Override
-//                                public void onFailed(String msg) {
+////                                hangUp();
 //
-//                                }
-//                            });
+////                                WebRTCManager.getInstance().init(signalIp, iceServers, new IConnectEvent() {
+////                                    @Override
+////                                    public void onSuccess() {
+//////                                    ChatSingleReceiveActivity.openActivity(ChatSingleReceiveActivity.this, videoEnable, myRandomUniqueId);
+////                                        finish();
+////                                        overridePendingTransition(0, 0);
+////                                        startActivity(getIntent());
+////                                        overridePendingTransition(0, 0);
+////                                    }
+////
+////                                    @Override
+////                                    public void onFailed(String msg) {
+////
+////                                    }
+////                                });
+////
+////                                //todo randomUniqueId
+////                                WebRTCManager.getInstance().connect(videoEnable ? MediaType.TYPE_VIDEO : MediaType.TYPE_AUDIO, myRandomUniqueId);
+//                            }
 //
-//                            //todo randomUniqueId
-//                            WebRTCManager.getInstance().connect(videoEnable ? MediaType.TYPE_VIDEO : MediaType.TYPE_AUDIO, myRandomUniqueId);
+//                            if (isAliveTimerFlag) {
+//                                isAliveTimerFlag = false;
+//                                //recalling
+//
+////                                hangUp();
+//
+////                                WebRTCManager.getInstance().init(signalIp, iceServers, new IConnectEvent() {
+////                                    @Override
+////                                    public void onSuccess() {
+////                                        ChatSingleReceiveActivity.openActivity(ChatSingleReceiveActivity.this, videoEnable, myRandomUniqueId);
+////                                    }
+////
+////                                    @Override
+////                                    public void onFailed(String msg) {
+////
+////                                    }
+////                                });
+////
+////                                //todo randomUniqueId
+////                                WebRTCManager.getInstance().connect(videoEnable ? MediaType.TYPE_VIDEO : MediaType.TYPE_AUDIO, myRandomUniqueId);
+//                            }
 //                        }
-//
-//                        if (isAliveTimerFlag) {
-//                            isAliveTimerFlag = false;
-//                            //recalling
-//
-//                            hangUp();
-//
-//                            WebRTCManager.getInstance().init(signalIp, iceServers, new IConnectEvent() {
-//                                @Override
-//                                public void onSuccess() {
-//                                    ChatSingleReceiveActivity.openActivity(ChatSingleReceiveActivity.this, videoEnable, myRandomUniqueId);
-//                                }
-//
-//                                @Override
-//                                public void onFailed(String msg) {
-//
-//                                }
-//                            });
-//
-//                            //todo randomUniqueId
-//                            WebRTCManager.getInstance().connect(videoEnable ? MediaType.TYPE_VIDEO : MediaType.TYPE_AUDIO, myRandomUniqueId);
-//
+//                    } else {
+//                        isAlive = false;
+//                        if (!isAliveTimerFlag) {
+////                        isDestroyConnection = true;
+//                            isAliveTimerFlag = true;
+//                            isAliveTimer();
 //                        }
 //                    }
-//                } else {
-//                    isAlive = false;
 //                }
 //
 //                // Repeat this the same runnable code block again another 2 seconds
@@ -327,19 +367,52 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
 
     //todo
 //    public void isAliveTimer() {
-//        final int interval = 20000; // 1 Second
-//        Handler handler = new Handler();
-//        Runnable runnable = new Runnable() {
-//            public void run() {
-//                if (isAliveTimerFlag) {
-//                    //end
-//                    isAliveTimerFlag = false;
-//                    hangUp();
-//                }
-//            }
-//        };
-//        handler.postAtTime(runnable, System.currentTimeMillis() + interval);
-//        handler.postDelayed(runnable, interval);
+//
+////        WebRTCManager.getInstance().init(signalIp, iceServers, new IConnectEvent() {
+////            @Override
+////            public void onSuccess() {
+//////                ChatSingleReceiveActivity.openActivity(ChatSingleReceiveActivity.this, videoEnable, myRandomUniqueId);
+////                handlerHeartBeatChecker.removeCallbacksAndMessages(runnableCodeHeartBeatChecker);
+////                recreate();
+////            }
+////
+////            @Override
+////            public void onFailed(String msg) {
+////
+////            }
+////        });
+////
+////        //todo randomUniqueId
+////        WebRTCManager.getInstance().connect(videoEnable ? MediaType.TYPE_VIDEO : MediaType.TYPE_AUDIO, "destinationRandomUniqueId");
+//
+//        Intent intent = new Intent(ChatSingleReceiveActivity.this, ReconnectActivity1.class);
+//        intent.putExtra("videoEnable", videoEnable);
+//        intent.putExtra("destinationRandomUniqueId", myRandomUniqueId);
+//        intent.putExtra("myRandomUniqueId", myRandomUniqueId);
+//        intent.putExtra("imei", "");
+//        intent.putExtra("destinationTokenRegistrationFCM", "");
+//        intent.putExtra("firstName", "");
+//        intent.putExtra("lastName", "");
+//        intent.putExtra("phoneNumber", "");
+//        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+//        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//        //        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//        startActivity(intent);
+//        this.finish();
+//
+////        final int interval = 20000; // 1 Second
+////        Handler handler = new Handler();
+////        Runnable runnable = new Runnable() {
+////            public void run() {
+////                if (isAliveTimerFlag) {
+////                    //end
+////                    isAliveTimerFlag = false;
+////                    hangUp();
+////                }
+////            }
+////        };
+////        handler.postAtTime(runnable, System.currentTimeMillis() + interval);
+////        handler.postDelayed(runnable, interval);
 //    }
 
 
@@ -366,11 +439,23 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
 //                    String a = (String) args[0];
 //                    String[] b = a.split("-");
 //
+//
 //                    if (b[0].equals(myRandomUniqueId)) {
 //                        if (b[2].equals("alive")) {
 //                            if (socketIO.isActive()) {
 //                                socketIO.emit("heartBeat", b[1] + "-" + myRandomUniqueId + "-" + "alive");
 //                                isAlive = true;
+//
+////                                new android.os.Handler(Looper.getMainLooper()).postDelayed(
+////                                        new Runnable() {
+////                                            public void run() {
+//////                                                Log.i("tag", "This'll run 300 milliseconds later");
+////                                            }
+////                                        },
+////                                        2000);
+//                            aaa.cancel();
+//                            aaa.start();
+//
 //                            }
 //                        }
 //                    }
@@ -379,7 +464,7 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
 //            });
 //        }
 //    };
-//
+
 //    private Emitter.Listener onReCallMessage = new Emitter.Listener() {
 //        @Override
 //        public void call(final Object... args) {
@@ -419,7 +504,7 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
                     stream.videoTracks.get(0).setEnabled(true);
                 }
 
-                AndroidNetworking.post("http://192.168.0.13:3000/api/Profile/callingprofile")
+                AndroidNetworking.post("http://172.20.10.4:3000/api/Profile/callingprofile")
                         .addQueryParameter("randomUniqueId", myRandomUniqueId)
                         .addQueryParameter("destinationRandomUniqueId", "")
                         .addQueryParameter("calling", "true")
@@ -555,7 +640,7 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        AndroidNetworking.post("http://192.168.0.13:3000/api/Profile/profileendcall")
+        AndroidNetworking.post("http://172.20.10.4:3000/api/Profile/profileendcall")
                 .addQueryParameter("randomUniqueId", myRandomUniqueId)
                 .addQueryParameter("calling", "false")
                 .setTag("ProfileEndCall")
@@ -578,7 +663,7 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
 
     private void disConnect() {
 
-//        handlerHeartBeatChecker.removeCallbacksAndMessages(null);
+//        handlerHeartBeatChecker.removeCallbacksAndMessages(runnableCodeHeartBeatChecker);
 
         manager.exitRoom();
 //        if (localRender != null) {
