@@ -436,7 +436,9 @@ public class NodejsActivity extends AppCompatActivity {
                                     Toast.makeText(getApplicationContext(), "please add correct ID", Toast.LENGTH_SHORT).show();
                                 } else if (anError.getErrorBody().contains("Is Calling!!!!!!")) {
                                     Toast.makeText(getApplicationContext(), "this user is calling", Toast.LENGTH_SHORT).show();
-                                } else {
+                                } else if (anError.getErrorBody().contains("Cant Find User!!!!!!")) {
+                                    Toast.makeText(getApplicationContext(), "Cant Find User!!", Toast.LENGTH_SHORT).show();
+                                }else {
                                     Toast.makeText(getApplicationContext(), "please check your connection", Toast.LENGTH_SHORT).show();
                                 }
 
