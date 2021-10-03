@@ -21,7 +21,7 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 
 
 public class MyNotificationManager {
-    private static final String TAG = "MyNotificationManager";
+//    private static final String TAG = "MyNotificationManager";
 
     private Context context;
     private static MyNotificationManager instance;
@@ -150,13 +150,15 @@ public class MyNotificationManager {
 //            PowerManager.WakeLock wl_cpu = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyCpuLock");
 //            wl_cpu.acquire(10000);
 //        }
+        String title1 = title.length() != 0 ? title : text;
+        String text1 = title.length() != 0 ? text : "";
         NotificationCompat.Builder builder;
         if (!isScreenOn) {
             builder = new NotificationCompat.Builder(context, channelId)
                     .setSmallIcon(R.drawable.phone_call_icon)
                     .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.phone_call_icon))
-                    .setContentTitle(title)
-                    .setContentText(text)
+                    .setContentTitle(title1)
+                    .setContentText(text1)
 //                    .setStyle(new NotificationCompat.BigTextStyle().bigText(bigText))
 //                    .setPriority(NotificationCompat.PRIORITY_MAX)
 //                    .setCategory(NotificationCompat.CATEGORY_CALL)
@@ -174,8 +176,8 @@ public class MyNotificationManager {
             builder = new NotificationCompat.Builder(context, channelId)
                     .setSmallIcon(R.drawable.phone_call_icon)
                     .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.phone_call_icon))
-                    .setContentTitle(title)
-                    .setContentText(text)
+                    .setContentTitle(title1)
+                    .setContentText(text1)
 //                    .setStyle(new NotificationCompat.BigTextStyle().bigText(bigText))
 //                    .setPriority(NotificationCompat.PRIORITY_MAX)
 //                    .setCategory(NotificationCompat.CATEGORY_CALL)

@@ -17,17 +17,15 @@ import io.socket.client.IO;
 import io.socket.client.Socket;
 import ir.vebko.www.vebkoarremoteassistance.nodejs.WebrtcUtil;
 
-/**
- * Created by priyankam on 28-06-2016.
- */
+
 public class HandleDeclineReceiver extends BroadcastReceiver {
 
-    private String signalIp = "ws://185.208.172.104:3000/ws";
+//    private String signalIp = "ws://185.208.172.104:3000/ws";
 
-    private SharedPreferences sharedPrefs;
-    private static final String PREF_IMEI_UNIQUE_ID = "PREF_IMEI_UNIQUE_ID";
-
-    public String randomUniqueId;
+//    private SharedPreferences sharedPrefs;
+//    private static final String PREF_IMEI_UNIQUE_ID = "PREF_IMEI_UNIQUE_ID";
+//
+//    public String randomUniqueId;
     private Socket socketIO = null;
 
     @Override
@@ -44,6 +42,8 @@ public class HandleDeclineReceiver extends BroadcastReceiver {
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
+
+        socketIO.connect();
 
         socketIO.emit("declineCall", intent.getStringExtra("destinationRandomUniqueId") + "-" + "decline");
 

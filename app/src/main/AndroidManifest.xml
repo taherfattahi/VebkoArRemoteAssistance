@@ -34,7 +34,6 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".nodejs.ProfileActivity"></activity>
 
         <meta-data
             android:name="com.google.ar.core"
@@ -70,15 +69,18 @@
             android:launchMode="singleTask"
             android:screenOrientation="landscape"
             android:theme="@style/SampleAppsTheme"></activity>
+
         <activity
             android:name=".vuforia.VideoPlayback"
             android:configChanges="orientation|keyboardHidden|screenSize|smallestScreenSize"
             android:launchMode="singleTask"
             android:screenOrientation="landscape"
             android:theme="@style/SampleAppsTheme"></activity>
+
         <activity
             android:name=".nodejs.NodejsActivity"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+
         <activity
             android:name=".SplashScreen"
             android:screenOrientation="portrait"
@@ -89,20 +91,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
-            android:name=".fcm.InterMediateActivity"
-            android:parentActivityName=".nodejs.NodejsActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".nodejs.NodejsActivity" />
-        </activity>
-        <activity
-            android:name=".fcm.NotificationDetailsActivity"
-            android:parentActivityName=".fcm.InterMediateActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".fcm.InterMediateActivity" />
-        </activity>
+            android:name=".nodejs.ProfileActivity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+
     </application>
 
 </manifest>

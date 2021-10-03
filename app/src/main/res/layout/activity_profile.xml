@@ -7,6 +7,74 @@
     tools:context=".nodejs.ProfileActivity">
 
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_top_profile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/main_color"
+        android:minHeight="?android:attr/actionBarSize"
+        android:contentInsetLeft="0dp"
+        android:contentInsetStart="0dp"
+        app:contentInsetLeft="0dp"
+        app:contentInsetStart="0dp"
+        android:contentInsetRight="0dp"
+        android:contentInsetEnd="0dp"
+        app:contentInsetRight="0dp"
+        app:contentInsetEnd="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+<!--        <ir.alirezabdn.wp7progress.WP7ProgressBar-->
+<!--            android:id="@+id/prgToolbar"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_gravity="left"-->
+<!--            app:indicatorColor="#FF1744"-->
+<!--            app:interval="50"/>-->
+
+<!--        <Button-->
+<!--            android:id="@+id/btnRetry"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_gravity="start"-->
+<!--            android:layout_marginLeft="8dp"-->
+<!--            android:background="@drawable/button_background"-->
+<!--            android:textAllCaps="false"-->
+<!--            android:textColor="@color/white"-->
+<!--            android:text="Retry" />-->
+
+        <ImageView
+            android:id="@+id/imgBackArrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:src="@drawable/ic_baseline_arrow_back_24"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true" />
+        <TextView
+            android:id="@+id/toolbar_title_profile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="8dp"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="20sp"/>
+
+<!--        <Button-->
+<!--            android:id="@+id/btnProfile"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_gravity="end"-->
+<!--            android:layout_marginRight="8dp"-->
+<!--            android:background="@drawable/button_background"-->
+<!--            android:textAllCaps="false"-->
+<!--            android:textColor="@color/white"-->
+<!--            android:text="Profile" />-->
+
+    </androidx.appcompat.widget.Toolbar>
+
     <EditText
         android:id="@+id/edtFirstName"
         android:layout_width="0dp"
@@ -18,7 +86,7 @@
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/textView6"
-        app:layout_constraintTop_toBottomOf="@+id/txtRandomUniqueId" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar_top_profile" />
 
     <EditText
         android:id="@+id/edtLastName"
@@ -60,32 +128,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edtPhoneNumber" />
-
-    <TextView
-        android:id="@+id/txtRandomUniqueId"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:text="TextView"
-        android:textColor="@color/black"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textView4"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:text="ID:"
-        android:textColor="@color/colorPrimaryDark"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="@+id/txtRandomUniqueId"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/txtRandomUniqueId" />
 
     <TextView
         android:id="@+id/textView6"

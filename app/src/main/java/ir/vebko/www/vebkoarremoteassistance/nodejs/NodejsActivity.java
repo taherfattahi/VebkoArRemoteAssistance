@@ -111,6 +111,7 @@ public class NodejsActivity extends AppCompatActivity {
         if (isConnected()) {
             btnRetry.setVisibility(View.GONE);
             progressBar.setVisibility(View.VISIBLE);
+            btnProfile.setVisibility(View.VISIBLE);
             progressBar.showProgressBar();
             if (imeiUniqueID == null) {
                 addProfileToServer(getUniqueID());
@@ -121,6 +122,7 @@ public class NodejsActivity extends AppCompatActivity {
         } else {
             btnRetry.setVisibility(View.VISIBLE);
             progressBar.setVisibility(View.GONE);
+            btnProfile.setVisibility(View.GONE);
             progressBar.hideProgressBar();
             Toast.makeText(getApplicationContext(), "please check your connection", Toast.LENGTH_SHORT).show();
         }
@@ -211,6 +213,7 @@ public class NodejsActivity extends AppCompatActivity {
                 btnRetry.setEnabled(false);
                 if (isConnected()) {
                     btnRetry.setVisibility(View.GONE);
+                    btnProfile.setVisibility(View.VISIBLE);
                     progressBar.setVisibility(View.VISIBLE);
                     progressBar.showProgressBar();
                     if (imeiUniqueID == null) {
@@ -221,6 +224,7 @@ public class NodejsActivity extends AppCompatActivity {
                     }
                 } else {
                     btnRetry.setVisibility(View.VISIBLE);
+                    btnProfile.setVisibility(View.GONE);
                     progressBar.setVisibility(View.GONE);
                     progressBar.hideProgressBar();
                     Toast.makeText(getApplicationContext(), "please check your connection", Toast.LENGTH_SHORT).show();
@@ -569,6 +573,7 @@ public class NodejsActivity extends AppCompatActivity {
 
                                     progressBar.hideProgressBar();
                                     progressBar.setVisibility(View.GONE);
+                                    btnProfile.setVisibility(View.VISIBLE);
                                     mTitleRandomUniqueId.setText("ID: " + randomUniqueId);
 
                                     isGetDataFromServer = true;
@@ -720,6 +725,7 @@ public class NodejsActivity extends AppCompatActivity {
 
                                     progressBar.hideProgressBar();
                                     progressBar.setVisibility(View.GONE);
+                                    btnProfile.setVisibility(View.VISIBLE);
                                     mTitleRandomUniqueId.setText("ID: " + randomUniqueId);
 
                                     isGetDataFromServer = true;

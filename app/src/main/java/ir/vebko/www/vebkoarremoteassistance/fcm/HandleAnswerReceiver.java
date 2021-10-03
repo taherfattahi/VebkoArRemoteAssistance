@@ -15,9 +15,7 @@ import com.androidnetworking.AndroidNetworking;
 
 import ir.vebko.www.vebkoarremoteassistance.nodejs.WebrtcUtil;
 
-/**
- * Created by priyankam on 28-06-2016.
- */
+
 public class HandleAnswerReceiver extends BroadcastReceiver {
 
     private String signalIp = "ws://185.208.172.104:3000/ws";

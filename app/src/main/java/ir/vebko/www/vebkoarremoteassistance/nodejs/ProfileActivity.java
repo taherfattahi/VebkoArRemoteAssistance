@@ -1,6 +1,7 @@
 package ir.vebko.www.vebkoarremoteassistance.nodejs;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +10,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,10 +26,11 @@ import ir.vebko.www.vebkoarremoteassistance.R;
 
 public class ProfileActivity extends AppCompatActivity {
 
-
-    private TextView txtRandomUniqueId;
+    private Toolbar toolbar_top_profile;
+    private TextView toolbar_title_profile;
     private EditText edtFirstName, edtLastName, edtPhoneNumber;
     private Button btnUpdateProfile;
+    private ImageView imgBackArrow;
 
     public String randomUniqueId = "";
     public String imeiUniqueID = "";
@@ -46,7 +49,9 @@ public class ProfileActivity extends AppCompatActivity {
 
         sharedPrefs = this.getSharedPreferences(PREF_IMEI_UNIQUE_ID, Context.MODE_PRIVATE);
 
-        txtRandomUniqueId = findViewById(R.id.txtRandomUniqueId);
+        toolbar_top_profile = (Toolbar) findViewById(R.id.toolbar_top_profile);
+        toolbar_title_profile = (TextView) toolbar_top_profile.findViewById(R.id.toolbar_title_profile);
+        imgBackArrow = findViewById(R.id.imgBackArrow);
         edtFirstName = findViewById(R.id.edtFirstName);
         edtLastName = findViewById(R.id.edtLastName);
         edtPhoneNumber = findViewById(R.id.edtPhoneNumber);
@@ -60,7 +65,7 @@ public class ProfileActivity extends AppCompatActivity {
         phoneNumber = intent.getStringExtra("phoneNumber");
 
         if (!randomUniqueId.equals("null")){
-            txtRandomUniqueId.setText(randomUniqueId);
+            toolbar_title_profile.setText("ID: " + randomUniqueId);
         }
         if (!firstName.equals("null")){
             edtFirstName.setText(firstName);
@@ -109,7 +114,7 @@ public class ProfileActivity extends AppCompatActivity {
                                     editor.putString("phoneNumber", phoneNumber);
                                     editor.commit();
 
-                                    txtRandomUniqueId.setText(randomUniqueId);
+                                    toolbar_title_profile.setText("ID: " + randomUniqueId);
                                     edtFirstName.setText(firstName);
                                     edtLastName.setText(lastName);
                                     edtPhoneNumber.setText(phoneNumber);
@@ -128,6 +133,13 @@ public class ProfileActivity extends AppCompatActivity {
                                 btnUpdateProfile.setEnabled(true);
                             }
                         });
+            }
+        });
+
+        imgBackArrow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
             }
         });
 
