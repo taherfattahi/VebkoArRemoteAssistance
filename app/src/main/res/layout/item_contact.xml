@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/llItemContact"
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -10,22 +11,24 @@
     <TextView
         android:id="@+id/contact_name"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:layout_height="match_parent"
         android:layout_gravity="center"
         android:layout_marginLeft="8dp"
+        android:layout_weight="1"
         android:textColor="@color/black"
+        android:gravity="center"
         android:textSize="18sp" />
 
 
     <TextView
         android:id="@+id/txtAddCustomName"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_gravity="center"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_weight="1.5"
+        android:gravity="left|center"
         android:textSize="18sp"
         android:textColor="@color/black" />
 
@@ -38,6 +41,6 @@
         android:textColor="@color/white"
         android:layout_marginRight="8dp"
         android:textAllCaps="false"
-        android:text="Add Custom Name" />
+        android:text="Edit" />
 
 </LinearLayout>

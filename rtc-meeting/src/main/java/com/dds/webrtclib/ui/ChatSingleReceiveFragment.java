@@ -9,6 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -24,23 +26,19 @@ import com.flask.colorpicker.builder.ColorPickerDialogBuilder;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
-/**
- * 单聊控制界面
- * Created by dds on 2019/1/7.
- * android_shuai@163.com
- */
 public class ChatSingleReceiveFragment extends Fragment {
 
     public View rootView;
     private ImageView wr_switch_mute;
     private ImageView wr_switch_hang_up;
     private ImageView wr_switch_bluetooth;
+    private TextView textViewStroke, textViewDistance;
+    private SeekBar seekBarDistance, seekBarStroke;
     private boolean isBlueTooth = false;
-    //    private TextView wr_clear_draw;
-//    private TextView wr_hand_free;
     private boolean enableMic = true;
     private boolean enableSpeaker = false;
     private boolean videoEnable;
+    private boolean isToogle = true;
     private ChatSingleReceiveActivity activity;
 
     @Override
@@ -67,7 +65,6 @@ public class ChatSingleReceiveFragment extends Fragment {
         return inflater.inflate(R.layout.wr_fragment_room_control_single, container, false);
     }
 
-
 //    private int currentBackgroundColor = 0xffffffff;
     private int currentBackgroundColor = 0xFFFF0000;
 
@@ -75,10 +72,57 @@ public class ChatSingleReceiveFragment extends Fragment {
         wr_switch_mute = rootView.findViewById(R.id.wr_switch_mute);
         wr_switch_hang_up = rootView.findViewById(R.id.wr_switch_hang_up);
         wr_switch_bluetooth = rootView.findViewById(R.id.wr_switch_bluetooth);
+        seekBarDistance = rootView.findViewById(R.id.seekBarDistance);
+        seekBarStroke = rootView.findViewById(R.id.seekBarStroke);
+        textViewDistance = rootView.findViewById(R.id.textViewDistance);
+        textViewStroke = rootView.findViewById(R.id.textViewStroke);
+
+        seekBarStroke.setVisibility(View.GONE);
+        seekBarDistance.setVisibility(View.GONE);
+        textViewStroke.setVisibility(View.GONE);
+        textViewDistance.setVisibility(View.GONE);
+
+        //        seekBarDistance.incrementProgressBy(1);
+        seekBarDistance.setProgress(28);
+        seekBarDistance.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                activity.setDistanceFromSickbarReceiver(((float)progress)/100);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        seekBarStroke.setProgress(5);
+        seekBarStroke.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                activity.setStrokFromSickbarReceiver(((float)progress)/10000);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
 
         final FloatingActionsMenu famSetting = (FloatingActionsMenu) rootView.findViewById(R.id.famSetting);
         final FloatingActionButton faColorPicker = (FloatingActionButton) rootView.findViewById(R.id.faColorPicker);
         final FloatingActionButton faClearDraw = (FloatingActionButton) rootView.findViewById(R.id.faClearDraw);
+        final FloatingActionButton faSettingDraw = (FloatingActionButton) rootView.findViewById(R.id.faSettingDraw);
 
         faColorPicker.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -135,6 +179,25 @@ public class ChatSingleReceiveFragment extends Fragment {
             public void onClick(View v) {
                 famSetting.toggle();
                 activity.clearDraw();
+            }
+        });
+
+        faSettingDraw.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                famSetting.toggle();
+                if (isToogle){
+                    seekBarStroke.setVisibility(View.VISIBLE);
+                    seekBarDistance.setVisibility(View.VISIBLE);
+                    textViewStroke.setVisibility(View.VISIBLE);
+                    textViewDistance.setVisibility(View.VISIBLE);
+                }else{
+                    seekBarStroke.setVisibility(View.GONE);
+                    seekBarDistance.setVisibility(View.GONE);
+                    textViewStroke.setVisibility(View.GONE);
+                    textViewDistance.setVisibility(View.GONE);
+                }
+                isToogle = !isToogle;
             }
         });
 

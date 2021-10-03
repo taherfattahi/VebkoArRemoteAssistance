@@ -64,9 +64,6 @@ import ir.vebko.www.vebkoarremoteassistance.vuforia.ImagePlayback;
 
 public class NodejsActivity extends AppCompatActivity {
 
-    private EditText edtRemoteID;
-    private EditText et_room;
-
     private SharedPreferences sharedPrefs;
     private static final String PREF_IMEI_UNIQUE_ID = "PREF_IMEI_UNIQUE_ID";
     private static final int PERMISSION_REQUEST_CODE = 100;
@@ -80,16 +77,14 @@ public class NodejsActivity extends AppCompatActivity {
     public String lastName = "";
     public String phoneNumber = "";
 
-
     private String signalIp = "ws://185.208.172.104:3000/ws";
 
-    private Button btnArCore;
-    private Button btnVuforia;
-    private Button btnRetry, btnProfile;
+    private Button btnRetry, btnProfile, btnVuforia, btnArCore;
 
     private Toolbar toolbar;
     private TextView mTitleRandomUniqueId;
     private WP7ProgressBar progressBar;
+    private EditText edtRemoteID;
 
     private boolean isGetDataFromServer;
     private boolean installRequested;
@@ -117,7 +112,6 @@ public class NodejsActivity extends AppCompatActivity {
                 addProfileToServer(getUniqueID());
             } else {
                 getProfileFromServer(imeiUniqueID);
-//                getContactFromServer(randomUniqueId);
             }
         } else {
             btnRetry.setVisibility(View.VISIBLE);
@@ -126,7 +120,6 @@ public class NodejsActivity extends AppCompatActivity {
             progressBar.hideProgressBar();
             Toast.makeText(getApplicationContext(), "please check your connection", Toast.LENGTH_SHORT).show();
         }
-
 
     }
 
@@ -152,19 +145,6 @@ public class NodejsActivity extends AppCompatActivity {
         adapter = new ContactsAdapter(contacts, this);
         rvDestinationUniqueId.setAdapter(adapter);
         rvDestinationUniqueId.setLayoutManager(new LinearLayoutManager(this));
-
-//        rvDestinationUniqueId.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), rvDestinationUniqueId, new RecyclerTouchListener.ClickListener() {
-//            @Override
-//            public void onClick(View view, int position) {
-////                speech(countries_list_code[position]);
-//                edtRemoteID.setText(contacts.get(position).getName());
-//            }
-//
-//            @Override
-//            public void onLongClick(View view, int position) {
-//
-//            }
-//        }));
 
         mTitleRandomUniqueId.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -220,7 +200,6 @@ public class NodejsActivity extends AppCompatActivity {
                         addProfileToServer(getUniqueID());
                     } else {
                         getProfileFromServer(imeiUniqueID);
-//                        getContactFromServer(randomUniqueId);
                     }
                 } else {
                     btnRetry.setVisibility(View.VISIBLE);
@@ -578,6 +557,10 @@ public class NodejsActivity extends AppCompatActivity {
 
                                     isGetDataFromServer = true;
 
+                                    if (contacts.size() > 0){
+                                        edtRemoteID.setText(contacts.get(0).getName());
+                                    }
+
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
@@ -729,6 +712,10 @@ public class NodejsActivity extends AppCompatActivity {
                                     mTitleRandomUniqueId.setText("ID: " + randomUniqueId);
 
                                     isGetDataFromServer = true;
+
+                                    if (contacts.size() > 0){
+                                        edtRemoteID.setText(contacts.get(0).getName());
+                                    }
 
                                 } catch (JSONException e) {
                                     e.printStackTrace();

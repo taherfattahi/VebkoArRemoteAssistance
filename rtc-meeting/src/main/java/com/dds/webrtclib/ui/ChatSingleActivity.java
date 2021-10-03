@@ -19,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.os.VibrationAttributes;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -46,6 +47,7 @@ import com.dds.webrtclib.R;
 import com.dds.webrtclib.WebRTCManager;
 import com.dds.webrtclib.ar.ArSceneView;
 import com.dds.webrtclib.ar.Stroke;
+import com.dds.webrtclib.ar.StrokeReceiver;
 import com.dds.webrtclib.bean.MediaType;
 import com.dds.webrtclib.bean.MyIceServer;
 import com.dds.webrtclib.utils.PermissionUtil;
@@ -106,8 +108,6 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
 
     private WebRTCManager manager;
 
-    private boolean videoEnable;
-
     private EglBase rootEglBase;
 
     private Session session;
@@ -116,11 +116,14 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
     private boolean shouldConfigureSession = false;
 //    private Map<String, AugmentedImageNode> nodes = new HashMap<String, AugmentedImageNode>();
 
-    private static final float DRAW_DISTANCE = 0.28f;
-    private Material material;
-    private AnchorNode anchorNode;
-    private final ArrayList<Stroke> strokes = new ArrayList<>();
-    private Stroke currentStroke;
+    private float DRAW_DISTANCE = 0.28f;
+    private float DRAW_DISTANCE_RECEIVER = 0.28f;
+    private Material materialSender, materialReceiver;
+    private AnchorNode anchorNodeSender, anchorNodeReceiver;
+    private final ArrayList<Stroke> strokesSender = new ArrayList<>();
+    private final ArrayList<StrokeReceiver> strokesReceiver = new ArrayList<>();
+    private Stroke currentStrokeSender;
+    private StrokeReceiver currentStrokeReceiver;
 
     private Socket socketIO = null;
 //    private Handler handlerHeartBeatChecker;
@@ -144,7 +147,7 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
 //    private boolean isAlive = true;
 //    private boolean isAliveTimerFlag = false;
     private static boolean active = false;
-
+    private boolean videoEnable;
 
     public static final String HOST = "136.243.172.245";
 
@@ -248,12 +251,19 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
 //        socketIO.on("heartBeatPusher", onHeartBeatMessage);
         socketIO.on("clearDrawFunc", onNewMessageClearDrawFunc);
         socketIO.on("changeColorDrawFunc", onNewMessageChangeColorDrawFunc);
+        socketIO.on("onDistanceFromSickbarReceiverFunc", onNewMessageDistanceFromSickbarReceiverFunc);
+        socketIO.on("setStrokFromSickbarReceiverFunc", onNewMessageStrokFromSickbarReceiverFunc);
 
         socketIO.connect();
 
         MaterialFactory.makeOpaqueWithColor(this,
                 new com.google.ar.sceneform.rendering.Color(Color.RED))
-                .thenAccept(material1 -> material = material1.makeCopy())
+                .thenAccept(material1 -> materialSender = material1.makeCopy())
+                .exceptionally(this::handleMaterialError);
+
+        MaterialFactory.makeOpaqueWithColor(this,
+                new com.google.ar.sceneform.rendering.Color(Color.BLUE))
+                .thenAccept(material1 -> materialReceiver = material1.makeCopy())
                 .exceptionally(this::handleMaterialError);
 
         initializeSceneView();
@@ -322,6 +332,20 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
 //        // Start the initial runnable task by posting through the handler
 //        handlerHeartBeatChecker.post(runnableCodeHeartBeatChecker);
 
+    }
+
+    public void setDistanceFromSickbarSender(float value){
+        try{
+            DRAW_DISTANCE = value;
+        }catch (Exception ex){
+        }
+    }
+
+    public void setStrokFromSickbarSender(float value){
+        try{
+            currentStrokeSender.setCylinderRadius(value);
+        }catch (Exception ex){
+        }
     }
 
     @Override
@@ -472,7 +496,7 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
                     String[] b = a.split("-");
 
                     if (b[0].equals(destinationRandomUniqueId)) {
-                        clearDraw();
+                        clearDrawReceiver();
                     }
                 }
             });
@@ -490,7 +514,49 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
                     String[] b = a.split("-");
 
                     if (b[0].equals(destinationRandomUniqueId)) {
-                        changeColorDraw(Integer.parseInt(b[1]));
+                        if (b.length == 3) {
+                            changeColorDrawReceiver(Integer.parseInt("-" + b[2]));
+                        }else {
+                            changeColorDrawReceiver(Integer.parseInt(b[1]));
+                        }
+                    }
+                }
+            });
+        }
+    };
+
+    private Emitter.Listener onNewMessageDistanceFromSickbarReceiverFunc = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    String a = (String) args[0];
+                    String[] b = a.split("-");
+                    if (b[0].equals(destinationRandomUniqueId)) {
+                        try{
+                            DRAW_DISTANCE_RECEIVER = Float.parseFloat(b[1]);
+                        }catch (Exception ex){
+                        }
+                    }
+                }
+            });
+        }
+    };
+
+    private Emitter.Listener onNewMessageStrokFromSickbarReceiverFunc = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    String a = (String) args[0];
+                    String[] b = a.split("-");
+                    if (b[0].equals(destinationRandomUniqueId)) {
+                        try {
+                            currentStrokeReceiver.setCylinderRadius(Float.parseFloat(b[1]));
+                        }catch (Exception ex){
+                        }
                     }
                 }
             });
@@ -524,25 +590,25 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
                             Camera camera = remote_view.getScene().getCamera();
 //                        Ray ray = camera.screenPointToRay((Float.parseFloat(b[0]) * widthMain) / Float.parseFloat(b[3]), (Float.parseFloat(b[1]) * heightMain) / Float.parseFloat(b[4]));
                             Ray ray = camera.screenPointToRay((Float.parseFloat(b[1]) * widthMain) / Float.parseFloat(b[4]), (Float.parseFloat(b[2]) * heightMain) / Float.parseFloat(b[5]));
-                            Vector3 drawPoint = ray.getPoint(DRAW_DISTANCE);
+                            Vector3 drawPoint = ray.getPoint(DRAW_DISTANCE_RECEIVER);
 
                             if (b[3].equals("down")) {
-                                if (anchorNode == null) {
+                                if (anchorNodeReceiver == null) {
                                     com.google.ar.core.Camera coreCamera = remote_view.getArFrame().getCamera();
                                     if (coreCamera.getTrackingState() != TrackingState.TRACKING) {
                                         return;
                                     }
                                     Pose pose = coreCamera.getPose();
-                                    anchorNode = new AnchorNode(remote_view.getSession().createAnchor(pose));
-                                    anchorNode.setParent(remote_view.getScene());
+                                    anchorNodeReceiver = new AnchorNode(remote_view.getSession().createAnchor(pose));
+                                    anchorNodeReceiver.setParent(remote_view.getScene());
                                 }
 
-                                currentStroke = new Stroke(anchorNode, material);
-                                strokes.add(currentStroke);
-                                currentStroke.add(drawPoint);
+                                currentStrokeReceiver = new StrokeReceiver(anchorNodeReceiver, materialReceiver);
+                                strokesReceiver.add(currentStrokeReceiver);
+                                currentStrokeReceiver.add(drawPoint);
 
-                            } else if (b[3].equals("move") && currentStroke != null) {
-                                currentStroke.add(drawPoint);
+                            } else if (b[3].equals("move") && currentStrokeReceiver != null) {
+                                currentStrokeReceiver.add(drawPoint);
                             }
                             testFlag = true;
                         }
@@ -576,26 +642,26 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
         Camera camera = remote_view.getScene().getCamera();
         Ray ray = camera.screenPointToRay(motionEvent.getX(), motionEvent.getY());
 
-//        Log.d("test123", "onPeekTouch: " +motionEvent.getX() + "    :    " + motionEvent.getY());
+//        Log.d("test123", "onPeekTouch: " + motionEvent.getX() + "    :    " + motionEvent.getY());
 
         Vector3 drawPoint = ray.getPoint(DRAW_DISTANCE);
         if (action == MotionEvent.ACTION_DOWN) {
 //            Log.d("test123", "onPeekTouch: " +"down");
-            if (anchorNode == null) {
+            if (anchorNodeSender == null) {
                 com.google.ar.core.Camera coreCamera = remote_view.getArFrame().getCamera();
                 if (coreCamera.getTrackingState() != TrackingState.TRACKING) {
                     return;
                 }
                 Pose pose = coreCamera.getPose();
-                anchorNode = new AnchorNode(remote_view.getSession().createAnchor(pose));
-                anchorNode.setParent(remote_view.getScene());
+                anchorNodeSender = new AnchorNode(remote_view.getSession().createAnchor(pose));
+                anchorNodeSender.setParent(remote_view.getScene());
             }
-            currentStroke = new Stroke(anchorNode, material);
-            strokes.add(currentStroke);
-            currentStroke.add(drawPoint);
-        } else if (action == MotionEvent.ACTION_MOVE && currentStroke != null) {
+            currentStrokeSender = new Stroke(anchorNodeSender, materialSender);
+            strokesSender.add(currentStrokeSender);
+            currentStrokeSender.add(drawPoint);
+        } else if (action == MotionEvent.ACTION_MOVE && currentStrokeSender != null) {
             Log.d("test123", "onPeekTouch: " + "move");
-            currentStroke.add(drawPoint);
+            currentStrokeSender.add(drawPoint);
         }
 
     }
@@ -613,7 +679,6 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
         }
 
 //        Frame frame = arSceneView.getArFrame();
-
         //todo Crash
         try {
             Bitmap surfaceBitmap = Bitmap.createBitmap(960, 540, Bitmap.Config.ARGB_8888);
@@ -756,10 +821,8 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
 
     private void configureSession() {
         Config config = new Config(session);
-
         config.setFocusMode(Config.FocusMode.AUTO);
         config.setUpdateMode(Config.UpdateMode.LATEST_CAMERA_IMAGE);
-
         session.configure(config);
     }
 
@@ -779,7 +842,6 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
                 if (stream.videoTracks.size() > 0) {
 //                    stream.videoTracks.get(0).addSink(localRender);
                 }
-
                 if (videoEnable) {
                     stream.videoTracks.get(0).setEnabled(true);
                 }
@@ -792,7 +854,6 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
                 }
                 if (videoEnable) {
                     stream.videoTracks.get(0).setEnabled(true);
-
                     runOnUiThread(() -> setSwappedFeeds(false));
                 }
             }
@@ -833,35 +894,43 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
     public void onBackPressed() {
         //        super.onBackPressed();
         hangUp();
-
     }
 
-
-    // 切换摄像头
-    public void clearDraw() {
-//        manager.switchCamera();
-        for (Stroke stroke : strokes) {
+    public void clearDrawSender() {
+        for (Stroke stroke : strokesSender) {
             stroke.clear();
         }
-        strokes.clear();
+        strokesSender.clear();
     }
 
-    public void changeColorDraw(int colorHex) {
+    public void clearDrawReceiver() {
+        for (StrokeReceiver stroke : strokesReceiver) {
+            stroke.clear();
+        }
+        strokesReceiver.clear();
+    }
+
+    public void changeColorDrawSender(int colorHex) {
         chatSingleFragment.changeBackgroundColor(colorHex);
         MaterialFactory.makeOpaqueWithColor(this,
                 new com.google.ar.sceneform.rendering.Color(colorHex))
-                .thenAccept(material1 -> material = material1.makeCopy())
+                .thenAccept(material1 -> materialSender = material1.makeCopy())
                 .exceptionally(this::handleMaterialError);
     }
 
+    public void changeColorDrawReceiver(int colorHex) {
+        chatSingleFragment.changeBackgroundColor(colorHex);
+        MaterialFactory.makeOpaqueWithColor(this,
+                new com.google.ar.sceneform.rendering.Color(colorHex))
+                .thenAccept(material1 -> materialReceiver = material1.makeCopy())
+                .exceptionally(this::handleMaterialError);
+    }
 
-    // 挂断
     public void hangUp() {
         disConnect();
         finish();
     }
 
-    // 静音
     public void toggleMic(boolean enable) {
         manager.toggleMute(enable);
     }
@@ -881,7 +950,6 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
         }
     }
 
-    // 扬声器
     public void toggleSpeaker(boolean enable) {
         manager.toggleSpeaker(enable);
 

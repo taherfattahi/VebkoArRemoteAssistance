@@ -74,7 +74,7 @@
         android:textAllCaps="false"
         android:background="@drawable/button_background"
         android:textColor="@color/white"
-        android:text="Remote Assistance"
+        android:text="Call"
         app:layout_constraintEnd_toStartOf="@+id/guideline4"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edtRemoteID" />

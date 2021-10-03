@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,12 +38,15 @@ public class ChatSingleFragment extends Fragment {
     private ImageView wr_switch_mute;
     private ImageView wr_switch_hang_up;
     private ImageView wr_switch_bluetooth;
+    private TextView textViewStroke, textViewDistance;
+    private SeekBar seekBarDistance, seekBarStroke;
     private boolean isBlueTooth = false;
     //    private TextView wr_clear_draw;
 //    private TextView wr_hand_free;
     private boolean enableMic = true;
     private boolean enableSpeaker = false;
     private boolean videoEnable;
+    private boolean isToogle = true;
     private ChatSingleActivity activity;
 
     @Override
@@ -69,7 +73,6 @@ public class ChatSingleFragment extends Fragment {
         return inflater.inflate(R.layout.wr_fragment_room_control_single, container, false);
     }
 
-
 //    private int currentBackgroundColor = 0xffffffff;
     private int currentBackgroundColor = 0xFFFF0000;
 
@@ -77,10 +80,57 @@ public class ChatSingleFragment extends Fragment {
         wr_switch_mute = rootView.findViewById(R.id.wr_switch_mute);
         wr_switch_hang_up = rootView.findViewById(R.id.wr_switch_hang_up);
         wr_switch_bluetooth = rootView.findViewById(R.id.wr_switch_bluetooth);
+        seekBarDistance = rootView.findViewById(R.id.seekBarDistance);
+        seekBarStroke = rootView.findViewById(R.id.seekBarStroke);
+        textViewDistance = rootView.findViewById(R.id.textViewDistance);
+        textViewStroke = rootView.findViewById(R.id.textViewStroke);
+
+        seekBarStroke.setVisibility(View.GONE);
+        seekBarDistance.setVisibility(View.GONE);
+        textViewStroke.setVisibility(View.GONE);
+        textViewDistance.setVisibility(View.GONE);
+
+//        seekBarDistance.incrementProgressBy(1);
+        seekBarDistance.setProgress(28);
+        seekBarDistance.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                activity.setDistanceFromSickbarSender(((float)progress)/100);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        seekBarStroke.setProgress(5);
+        seekBarStroke.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                activity.setStrokFromSickbarSender(((float)progress)/10000);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
 
         final FloatingActionsMenu famSetting = (FloatingActionsMenu) rootView.findViewById(R.id.famSetting);
         final FloatingActionButton faColorPicker = (FloatingActionButton) rootView.findViewById(R.id.faColorPicker);
         final FloatingActionButton faClearDraw = (FloatingActionButton) rootView.findViewById(R.id.faClearDraw);
+        final FloatingActionButton faSettingDraw = (FloatingActionButton) rootView.findViewById(R.id.faSettingDraw);
 
         faColorPicker.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,7 +165,7 @@ public class ChatSingleFragment extends Fragment {
                             public void onClick(DialogInterface dialog, int selectedColor, Integer[] allColors) {
                                 changeBackgroundColor(selectedColor);
                                 if (allColors != null) {
-                                    activity.changeColorDraw(selectedColor);
+                                    activity.changeColorDrawSender(selectedColor);
                                 }
                             }
                         })
@@ -136,7 +186,26 @@ public class ChatSingleFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 famSetting.toggle();
-                activity.clearDraw();
+                activity.clearDrawSender();
+            }
+        });
+
+        faSettingDraw.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                famSetting.toggle();
+                if (isToogle){
+                    seekBarStroke.setVisibility(View.VISIBLE);
+                    seekBarDistance.setVisibility(View.VISIBLE);
+                    textViewStroke.setVisibility(View.VISIBLE);
+                    textViewDistance.setVisibility(View.VISIBLE);
+                }else{
+                    seekBarStroke.setVisibility(View.GONE);
+                    seekBarDistance.setVisibility(View.GONE);
+                    textViewStroke.setVisibility(View.GONE);
+                    textViewDistance.setVisibility(View.GONE);
+                }
+                isToogle = !isToogle;
             }
         });
 

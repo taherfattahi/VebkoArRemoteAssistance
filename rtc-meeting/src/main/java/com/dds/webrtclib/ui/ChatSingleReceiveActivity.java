@@ -60,12 +60,6 @@ import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 
-
-/**
- * 单聊界面
- * 1. 一对一视频通话
- * 2. 一对一语音通话
- */
 public class ChatSingleReceiveActivity extends AppCompatActivity {
 
     //    private SurfaceViewRenderer local_view;
@@ -147,6 +141,20 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
         initVar();
 
 //        local_view.setVisibility(View.GONE);
+    }
+
+    public void setDistanceFromSickbarReceiver(float value){
+        try{
+            socketIO.emit("onDistanceFromSickbarReceiver", myRandomUniqueId + "-" + value);
+        }catch (Exception ex){
+        }
+    }
+
+    public void setStrokFromSickbarReceiver(float value){
+        try{
+            socketIO.emit("onStrokFromSickbarReceiver", myRandomUniqueId + "-" + value);
+        }catch (Exception ex){
+        }
     }
 
     @Override
@@ -592,12 +600,10 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
     }
 
 
-    // 切换摄像头
     public void switchCamera() {
         manager.switchCamera();
     }
 
-    // 切换摄像头
     public void clearDraw() {
         socketIO.emit("clearDrawFunc", myRandomUniqueId + "-" + "clearDraw");
     }
@@ -606,18 +612,15 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
         socketIO.emit("changeColorDrawFunc", myRandomUniqueId + "-" + colorHex);
     }
 
-    // 挂断
     public void hangUp() {
         disConnect();
         finish();
     }
 
-    // 静音
     public void toggleMic(boolean enable) {
         manager.toggleMute(enable);
     }
 
-    // 扬声器
     public void toggleSpeaker(boolean enable) {
         manager.toggleSpeaker(enable);
 

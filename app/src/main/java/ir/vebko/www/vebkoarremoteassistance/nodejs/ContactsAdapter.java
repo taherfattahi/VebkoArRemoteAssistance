@@ -3,11 +3,13 @@ package ir.vebko.www.vebkoarremoteassistance.nodejs;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -28,6 +30,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
     private EditText edtCustomName;
     private int recyclerClickPosition;
 
+    private int row_index;
     // Pass in the contact array into the constructor
     public ContactsAdapter(List<Contact> contacts, NodejsActivity nodejsActivity) {
         mContacts = contacts;
@@ -77,15 +80,26 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
         Contact contact = mContacts.get(position);
 
         // Set item views based on your views and data model
+        LinearLayout linearLayout = holder.llItemContact;
         TextView textView = holder.nameTextView;
         textView.setText(contact.getName());
 
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                row_index = position;
                 nodejsActivity.addDestinationUniueIdToTextView(position);
+                notifyDataSetChanged();
             }
         });
+
+        if(row_index==position){
+            linearLayout.setBackgroundColor(Color.parseColor("#E1F5FE"));
+        }
+        else
+        {
+            linearLayout.setBackgroundColor(Color.parseColor("#ffffff"));
+        }
 
         TextView txtAddCustomName = holder.txtAddCustomName;
         if (contact.getMyCustomName() != null) {
@@ -93,6 +107,15 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
                 txtAddCustomName.setText(contact.getMyCustomName());
             }
         }
+
+        txtAddCustomName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                row_index = position;
+                nodejsActivity.addDestinationUniueIdToTextView(position);
+                notifyDataSetChanged();
+            }
+        });
 
         Button button = holder.btnAddCustomName;
         button.setOnClickListener(new View.OnClickListener() {
@@ -120,6 +143,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
         public TextView nameTextView;
         public TextView txtAddCustomName;
         public Button btnAddCustomName;
+        public LinearLayout llItemContact;
 
         // We also create a constructor that accepts the entire item row
         // and does the view lookups to find each subview
@@ -131,6 +155,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
             nameTextView = (TextView) itemView.findViewById(R.id.contact_name);
             txtAddCustomName = itemView.findViewById(R.id.txtAddCustomName);
             btnAddCustomName = (Button) itemView.findViewById(R.id.btnAddCustomName);
+            llItemContact = (LinearLayout) itemView.findViewById(R.id.llItemContact);
         }
     }
 }

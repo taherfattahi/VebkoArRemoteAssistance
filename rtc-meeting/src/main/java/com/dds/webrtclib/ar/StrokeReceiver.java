@@ -25,11 +25,11 @@ import com.google.ar.sceneform.rendering.RenderableDefinition;
 import java.util.List;
 
 /** Collects points to be drawn */
-public class Stroke {
+public class StrokeReceiver {
 
-  public static float CYLINDER_RADIUS = 0.0005f;
+  public static float CYLINDER_RADIUS_RECEIVER = 0.0005f;
   private static final float MINIMUM_DISTANCE_BETWEEN_POINTS = 0.0005f;
-  private static final String TAG = Stroke.class.getSimpleName();
+  private static final String TAG = StrokeReceiver.class.getSimpleName();
 
 
   private final Node node = new Node();
@@ -39,7 +39,7 @@ public class Stroke {
   private AnchorNode anchorNode;
   private ModelRenderable shape;
 
-  public Stroke(AnchorNode anchorNode, Material material) {
+  public StrokeReceiver(AnchorNode anchorNode, Material material) {
     this.material = material;
     this.anchorNode = anchorNode;
     node.setParent(anchorNode);
@@ -62,7 +62,7 @@ public class Stroke {
     lineSimplifier.add(pointInLocal);
 
     RenderableDefinition renderableDefinition =
-        ExtrudedCylinder.makeExtrudedCylinder(CYLINDER_RADIUS, points, material);
+        ExtrudedCylinder.makeExtrudedCylinder(CYLINDER_RADIUS_RECEIVER, points, material);
     if (shape == null) {
       shape = ModelRenderable.builder().setSource(renderableDefinition).build().join();
       node.setRenderable(shape);
@@ -72,7 +72,7 @@ public class Stroke {
   }
 
   public void setCylinderRadius(float value) {
-    CYLINDER_RADIUS = value;
+    CYLINDER_RADIUS_RECEIVER = value;
   }
 
   public void clear() {

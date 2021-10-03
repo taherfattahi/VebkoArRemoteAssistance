@@ -66,39 +66,7 @@
 <!--        android:textColor="@android:color/white"-->
 <!--        android:textSize="@dimen/wr_control_text_size" />-->
 
-    <com.getbase.floatingactionbutton.FloatingActionsMenu
-        android:id="@+id/famSetting"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="-12dp"
-        fab:fab_addButtonColorNormal="@color/white"
-        fab:fab_addButtonColorPressed="@color/white_pressed"
-        fab:fab_addButtonPlusIconColor="@color/half_black"
-        fab:fab_labelStyle="@style/menu_labels_style"
-        fab:layout_constraintBottom_toBottomOf="parent"
-        fab:layout_constraintEnd_toEndOf="parent"
-        fab:layout_constraintStart_toStartOf="@+id/guideline2">
 
-        <com.getbase.floatingactionbutton.FloatingActionButton
-            android:id="@+id/faColorPicker"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            fab:fab_colorNormal="@color/white"
-            fab:fab_colorPressed="@color/white_pressed1"
-            fab:fab_icon="@drawable/color_picker" />
-
-        <com.getbase.floatingactionbutton.FloatingActionButton
-            android:id="@+id/faClearDraw"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            fab:fab_colorNormal="@color/white"
-            fab:fab_colorPressed="@color/white_pressed1"
-            fab:fab_icon="@drawable/trash_bin" />
-
-    </com.getbase.floatingactionbutton.FloatingActionsMenu>
 
 <!--    <TextView-->
 <!--        android:id="@+id/txtSetting"-->
@@ -132,6 +100,91 @@
         android:orientation="vertical"
         fab:layout_constraintGuide_percent="0.5" />
 
+    <SeekBar
+        android:id="@+id/seekBarStroke"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        style="@style/MySeekBar"
+        android:max="100"
+        fab:layout_constraintBottom_toBottomOf="@+id/textViewStroke"
+        fab:layout_constraintEnd_toEndOf="parent"
+        fab:layout_constraintStart_toStartOf="@+id/seekBarDistance"
+        fab:layout_constraintTop_toTopOf="@+id/textViewStroke" />
+
+    <SeekBar
+        android:id="@+id/seekBarDistance"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        style="@style/MySeekBar"
+        android:max="100"
+        fab:layout_constraintBottom_toBottomOf="@+id/textViewDistance"
+        fab:layout_constraintEnd_toEndOf="parent"
+        fab:layout_constraintStart_toEndOf="@+id/textViewDistance"
+        fab:layout_constraintTop_toTopOf="@+id/textViewDistance" />
+
+    <TextView
+        android:id="@+id/textViewStroke"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="Stroke"
+        android:textColor="@color/black_semi_transparent"
+        fab:layout_constraintBottom_toTopOf="@+id/wr_switch_mute"
+        fab:layout_constraintStart_toStartOf="@+id/wr_switch_mute" />
+
+    <TextView
+        android:id="@+id/textViewDistance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="Distance"
+        android:textColor="@color/black_semi_transparent"
+        fab:layout_constraintBottom_toTopOf="@+id/textViewStroke"
+        fab:layout_constraintStart_toStartOf="@+id/textViewStroke" />
+
+    <com.getbase.floatingactionbutton.FloatingActionsMenu
+        android:id="@+id/famSetting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="-10dp"
+        fab:fab_addButtonColorNormal="@color/white"
+        fab:fab_addButtonColorPressed="@color/white_pressed"
+        fab:fab_addButtonPlusIconColor="@color/half_black"
+        fab:fab_labelStyle="@style/menu_labels_style"
+        fab:layout_constraintBottom_toBottomOf="parent"
+        fab:layout_constraintEnd_toEndOf="parent"
+        fab:layout_constraintStart_toStartOf="@+id/guideline2">
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/faColorPicker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:fab_colorNormal="@color/white"
+            fab:fab_colorPressed="@color/white_pressed1"
+            fab:fab_icon="@drawable/color_picker" />
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/faSettingDraw"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:fab_colorNormal="@color/white"
+            fab:fab_colorPressed="@color/white_pressed1"
+            fab:fab_icon="@drawable/ic_baseline_settings_24" />
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/faClearDraw"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:fab_colorNormal="@color/white"
+            fab:fab_colorPressed="@color/white_pressed1"
+            fab:fab_icon="@drawable/trash_bin" />
+
+    </com.getbase.floatingactionbutton.FloatingActionsMenu>
     <!--    <TextView-->
 <!--        android:id="@+id/wr_hand_free"-->
 <!--        android:layout_width="wrap_content"-->
