@@ -135,10 +135,6 @@ public class ChatSingleFragment extends Fragment {
         faColorPicker.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                actionA.setTitle("Action A clicked");
-
-//                final Context context = SampleActivity.this;
-
                 famSetting.toggle();
 
                 ColorPickerDialogBuilder

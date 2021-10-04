@@ -10,7 +10,7 @@
     <style name="Webrtc.AppTheme.NoActionBar">
         <item name="colorPrimary">@color/webrtc_colorPrimary</item>
         <item name="colorPrimaryDark">@color/webrtc_colorPrimaryDark</item>
-        <item name="colorAccent">@color/webrtc_colorAccent</item>
+        <item name="colorAccent">@color/white</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:navigationBarColor">@color/webrtc_colorPrimary</item>

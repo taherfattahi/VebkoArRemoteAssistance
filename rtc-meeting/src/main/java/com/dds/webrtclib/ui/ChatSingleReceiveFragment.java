@@ -66,7 +66,7 @@ public class ChatSingleReceiveFragment extends Fragment {
     }
 
 //    private int currentBackgroundColor = 0xffffffff;
-    private int currentBackgroundColor = 0xFFFF0000;
+    private int currentBackgroundColor = 0xFF1734FF;
 
     private void initView(View rootView) {
         wr_switch_mute = rootView.findViewById(R.id.wr_switch_mute);

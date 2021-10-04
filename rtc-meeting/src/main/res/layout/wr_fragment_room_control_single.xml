@@ -6,11 +6,7 @@
     xmlns:fab="http://schemas.android.com/apk/res-auto"
     android:gravity="bottom"
     android:padding="20dp">
-
-    <!--静音-->
-
-    <!--挂断-->
-
+    
     <ImageView
         android:id="@+id/wr_switch_mute"
         android:layout_width="wrap_content"
