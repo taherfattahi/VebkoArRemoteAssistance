@@ -59,6 +59,7 @@ import java.util.concurrent.TimeUnit;
 import javax.net.ssl.HttpsURLConnection;
 
 import ir.alirezabdn.wp7progress.WP7ProgressBar;
+import ir.vebko.www.vebkoarremoteassistance.MyApplication;
 import ir.vebko.www.vebkoarremoteassistance.R;
 import ir.vebko.www.vebkoarremoteassistance.vuforia.ImagePlayback;
 
@@ -77,7 +78,7 @@ public class NodejsActivity extends AppCompatActivity {
     public String lastName = "";
     public String phoneNumber = "";
 
-    private String signalIp = "ws://185.208.172.104:3000/ws";
+    private String signalIp = "ws://136.243.172.245:3000/ws";
 
     private Button btnRetry, btnProfile, btnVuforia, btnArCore;
 
@@ -299,7 +300,7 @@ public class NodejsActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        AndroidNetworking.patch("http://172.20.10.4:3000/api/Contact/updatecontactcustomname")
+        AndroidNetworking.patch(MyApplication.WebApiURL + "/api/Contact/updatecontactcustomname")
                 .addJSONObjectBody(jsonObjectProfile) // posting json
                 .setTag("UpdateContactCustomName")
                 .setPriority(Priority.HIGH)
@@ -363,7 +364,7 @@ public class NodejsActivity extends AppCompatActivity {
 
         if (isGetDataFromServer) {
             if (edtRemoteID.getText().toString().trim().length() != 0 && !edtRemoteID.getText().toString().trim().equals(randomUniqueId)) {
-                AndroidNetworking.post("http://172.20.10.4:3000/api/Profile/callingprofile")
+                AndroidNetworking.post(MyApplication.WebApiURL + "/api/Profile/callingprofile")
                         .addQueryParameter("randomUniqueId", randomUniqueId)
                         .addQueryParameter("destinationRandomUniqueId", edtRemoteID.getText().toString().trim())
                         .addQueryParameter("calling", "true")
@@ -446,7 +447,7 @@ public class NodejsActivity extends AppCompatActivity {
                 }
                 Log.i("Token:  ", "onComplete: The result: " + task.getResult().getToken());
 
-                AndroidNetworking.post("http://172.20.10.4:3000/api/Profile/getprofileimei")
+                AndroidNetworking.post(MyApplication.WebApiURL + "/api/Profile/getprofileimei")
                         .addQueryParameter("imei", myImeiUniqueID)
                         .addQueryParameter("tokenRegistrationFCM", task.getResult().getToken())
                         .addQueryParameter("calling", "false")
@@ -481,7 +482,7 @@ public class NodejsActivity extends AppCompatActivity {
                                                 Contact contact = new Contact();
                                                 contact.setName(jsonObject.getString("destinationRandomUniqueIdProfile"));
                                                 if (jsonObject.getString("destinationCustomName").equals("null")) {
-                                                    AndroidNetworking.post("http://172.20.10.4:3000/api/Profile/getprofileuniqueid")
+                                                    AndroidNetworking.post(MyApplication.WebApiURL + "/api/Profile/getprofileuniqueid")
                                                             .addQueryParameter("randomUniqueId", jsonObject.getString("destinationRandomUniqueIdProfile"))
                                                             .setTag("getProfileUniqueId")
                                                             .setPriority(Priority.HIGH)
@@ -513,7 +514,7 @@ public class NodejsActivity extends AppCompatActivity {
                                                 Contact contact = new Contact();
                                                 contact.setName(jsonObject.getString("myRandomUniqueIdProfile"));
                                                 if (jsonObject.getString("myCustomName").equals("null")) {
-                                                    AndroidNetworking.post("http://172.20.10.4:3000/api/Profile/getprofileuniqueid")
+                                                    AndroidNetworking.post(MyApplication.WebApiURL + "/api/Profile/getprofileuniqueid")
                                                             .addQueryParameter("randomUniqueId", jsonObject.getString("myRandomUniqueIdProfile"))
                                                             .setTag("getProfileUniqueId")
                                                             .setPriority(Priority.HIGH)
@@ -605,7 +606,7 @@ public class NodejsActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                AndroidNetworking.post("http://172.20.10.4:3000/api/Profile")
+                AndroidNetworking.post(MyApplication.WebApiURL + "/api/Profile")
                         .addJSONObjectBody(jsonObjectProfile) // posting json
                         .setTag("AddProfile")
                         .setPriority(Priority.HIGH)
@@ -639,7 +640,7 @@ public class NodejsActivity extends AppCompatActivity {
                                                 Contact contact = new Contact();
                                                 contact.setName(jsonObject.getString("destinationRandomUniqueIdProfile"));
                                                 if (jsonObject.getString("destinationCustomName").equals("null")) {
-                                                    AndroidNetworking.post("http://172.20.10.4:3000/api/Profile/getprofileuniqueid")
+                                                    AndroidNetworking.post(MyApplication.WebApiURL + "/api/Profile/getprofileuniqueid")
                                                             .addQueryParameter("randomUniqueId", jsonObject.getString("destinationRandomUniqueIdProfile"))
                                                             .setTag("getProfileUniqueId")
                                                             .setPriority(Priority.HIGH)
@@ -671,7 +672,7 @@ public class NodejsActivity extends AppCompatActivity {
                                                 Contact contact = new Contact();
                                                 contact.setName(jsonObject.getString("myRandomUniqueIdProfile"));
                                                 if (jsonObject.getString("myCustomName").equals("null")) {
-                                                    AndroidNetworking.post("http://172.20.10.4:3000/api/Profile/getprofileuniqueid")
+                                                    AndroidNetworking.post(MyApplication.WebApiURL + "/api/Profile/getprofileuniqueid")
                                                             .addQueryParameter("randomUniqueId", jsonObject.getString("myRandomUniqueIdProfile"))
                                                             .setTag("getProfileUniqueId")
                                                             .setPriority(Priority.HIGH)

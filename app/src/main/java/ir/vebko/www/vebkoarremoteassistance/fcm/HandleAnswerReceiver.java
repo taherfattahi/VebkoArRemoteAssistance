@@ -18,7 +18,7 @@ import ir.vebko.www.vebkoarremoteassistance.nodejs.WebrtcUtil;
 
 public class HandleAnswerReceiver extends BroadcastReceiver {
 
-    private String signalIp = "ws://185.208.172.104:3000/ws";
+    private String signalIp = "ws://136.243.172.245:3000/ws";
 
     private SharedPreferences sharedPrefs;
     private static final String PREF_IMEI_UNIQUE_ID = "PREF_IMEI_UNIQUE_ID";

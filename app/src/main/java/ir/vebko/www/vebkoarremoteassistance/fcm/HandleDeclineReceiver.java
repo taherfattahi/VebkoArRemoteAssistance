@@ -38,7 +38,7 @@ public class HandleDeclineReceiver extends BroadcastReceiver {
         manager.cancel(1);
 
         try {
-            socketIO = IO.socket("http://172.20.10.4:3001");
+            socketIO = IO.socket("http://136.243.172.245:3001");
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }

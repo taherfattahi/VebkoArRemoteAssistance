@@ -91,6 +91,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
 
@@ -150,9 +151,10 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
     private boolean videoEnable;
 
     public static final String HOST = "136.243.172.245";
+    public static final String WebApiURL = "https://vebko.ir:4433";
 
     // signalling
-    private String signalIp = "ws://185.208.172.104:3000/ws";
+    private String signalIp = "ws://136.243.172.245:3000/ws";
 
     // turn and stun
     private static MyIceServer[] iceServers = {
@@ -240,7 +242,7 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
 
         //todo
         try {
-            socketIO = IO.socket("http://172.20.10.4:3001");
+            socketIO = IO.socket("http://136.243.172.245:3001");
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
@@ -753,8 +755,8 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
 //                    return;
 //                }
 
-                session = new Session(/* context = */ this);
-//                session = new Session(/* context = */ this, EnumSet.of(Session.Feature.SHARED_CAMERA));
+//                session = new Session(/* context = */ this);
+                session = new Session(/* context = */ this, EnumSet.of(Session.Feature.SHARED_CAMERA));
 //                Config config = new Config(session);
 //                if (enableAutoFocus) {
 //                    config.setFocusMode(Config.FocusMode.AUTO);
@@ -957,7 +959,7 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
 
     @Override
     protected void onDestroy() {
-        AndroidNetworking.post("http://172.20.10.4:3000/api/Profile/profileendcall")
+        AndroidNetworking.post(WebApiURL + "/api/Profile/profileendcall")
                 .addQueryParameter("randomUniqueId", myRandomUniqueId)
                 .addQueryParameter("calling", "false")
                 .setTag("ProfileEndCall")

@@ -98,9 +98,10 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
 //    }
 
     public static final String HOST = "136.243.172.245";
+    public static final String WebApiURL = "https://vebko.ir:4433";
 
     // signalling
-    private String signalIp = "ws://185.208.172.104:3000/ws";
+    private String signalIp = "ws://136.243.172.245:3000/ws";
 
     // turn and stun
     private static MyIceServer[] iceServers = {
@@ -203,7 +204,7 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
         }
 
         try {
-            socketIO = IO.socket("http://172.20.10.4:3001");
+            socketIO = IO.socket("http://136.243.172.245:3001");
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
@@ -512,7 +513,7 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
                     stream.videoTracks.get(0).setEnabled(true);
                 }
 
-                AndroidNetworking.post("http://172.20.10.4:3000/api/Profile/callingprofile")
+                AndroidNetworking.post(WebApiURL + "/api/Profile/callingprofile")
                         .addQueryParameter("randomUniqueId", myRandomUniqueId)
                         .addQueryParameter("destinationRandomUniqueId", "")
                         .addQueryParameter("calling", "true")
@@ -643,7 +644,7 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        AndroidNetworking.post("http://172.20.10.4:3000/api/Profile/profileendcall")
+        AndroidNetworking.post(WebApiURL + "/api/Profile/profileendcall")
                 .addQueryParameter("randomUniqueId", myRandomUniqueId)
                 .addQueryParameter("calling", "false")
                 .setTag("ProfileEndCall")

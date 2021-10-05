@@ -22,6 +22,7 @@ import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import ir.vebko.www.vebkoarremoteassistance.MyApplication;
 import ir.vebko.www.vebkoarremoteassistance.R;
 
 public class ProfileActivity extends AppCompatActivity {
@@ -94,7 +95,7 @@ public class ProfileActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                AndroidNetworking.patch("http://172.20.10.4:3000/api/Profile/updateprofile")
+                AndroidNetworking.patch(MyApplication.WebApiURL + "/api/Profile/updateprofile")
                         .addJSONObjectBody(jsonObjectProfile)
                         .setTag("updateprofile")
                         .setPriority(Priority.HIGH)

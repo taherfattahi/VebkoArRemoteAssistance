@@ -20,6 +20,8 @@ import com.dds.webrtclib.ws.IConnectEvent;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import ir.vebko.www.vebkoarremoteassistance.MyApplication;
+
 
 public class WebrtcUtil {
 
@@ -65,7 +67,7 @@ public class WebrtcUtil {
                     e.printStackTrace();
                 }
 
-                AndroidNetworking.post("http://172.20.10.4:3000/api/Contact")
+                AndroidNetworking.post(MyApplication.WebApiURL + "/api/Contact")
                         .addJSONObjectBody(jsonObjectContact) // posting json
                         .setTag("AddContact")
                         .setPriority(Priority.HIGH)

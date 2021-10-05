@@ -18,7 +18,7 @@ public class MyApplication extends Application {
 
     private static final String TAG = "MyApplication";
 
-    public static final String WebApiURL = "";
+    public static final String WebApiURL = "https://vebko.ir:4433";
     public static final String Web = "";
 
     private MyNotificationManager myNotificationManager;
