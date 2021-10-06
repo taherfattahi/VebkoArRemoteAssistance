@@ -104,7 +104,7 @@ public class ChatSingleFragment extends Fragment {
             }
         });
 
-        seekBarStroke.setProgress(5);
+        seekBarStroke.setProgress(8);
         seekBarStroke.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {

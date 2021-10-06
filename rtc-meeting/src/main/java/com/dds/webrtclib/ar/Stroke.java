@@ -27,7 +27,7 @@ import java.util.List;
 /** Collects points to be drawn */
 public class Stroke {
 
-  public static float CYLINDER_RADIUS = 0.0005f;
+  public static float CYLINDER_RADIUS = 0.0008f;
   private static final float MINIMUM_DISTANCE_BETWEEN_POINTS = 0.0005f;
   private static final String TAG = Stroke.class.getSimpleName();
 
