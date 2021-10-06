@@ -1,6 +1,7 @@
 package ir.vebko.www.vebkoarremoteassistance.nodejs;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -17,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -28,6 +30,7 @@ import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.common.Priority;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
+import com.dds.webrtclib.ui.ChatSingleReceiveActivity;
 import com.github.ybq.android.spinkit.SpinKitView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -52,6 +55,7 @@ public class NodejsActivity extends AppCompatActivity {
     private SharedPreferences sharedPrefs;
     private static final String PREF_IMEI_UNIQUE_ID = "PREF_IMEI_UNIQUE_ID";
     private static final int PERMISSION_REQUEST_CODE = 100;
+//    public static NodejsActivity nodejsActivity = null;
 
     public String FCM_TOKEN = null;
 
@@ -82,6 +86,8 @@ public class NodejsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nodejs);
 
+//        nodejsActivity = this;
+
         sharedPrefs = this.getSharedPreferences(PREF_IMEI_UNIQUE_ID, Context.MODE_PRIVATE);
         imeiUniqueID = sharedPrefs.getString(PREF_IMEI_UNIQUE_ID, null);
 
@@ -89,7 +95,8 @@ public class NodejsActivity extends AppCompatActivity {
 
         if (isConnected()) {
             btnRetry.setVisibility(View.GONE);
-            btnProfile.setVisibility(View.VISIBLE);
+            btnProfile.setVisibility(View.GONE);
+            spin_kit.setVisibility(View.VISIBLE);
             if (imeiUniqueID == null) {
                 addProfileToServer(getUniqueID());
             } else {
@@ -174,6 +181,7 @@ public class NodejsActivity extends AppCompatActivity {
                 btnRetry.setEnabled(false);
                 if (isConnected()) {
                     btnRetry.setVisibility(View.GONE);
+                    btnProfile.setVisibility(View.VISIBLE);
                     spin_kit.setVisibility(View.VISIBLE);
                     if (imeiUniqueID == null) {
                         addProfileToServer(getUniqueID());
@@ -358,13 +366,13 @@ public class NodejsActivity extends AppCompatActivity {
                                         for (int i = 0; i < jsonArray.length(); i++) {
                                             jsonObject1 = jsonArray.getJSONObject(i);
                                             if (jsonObject1.getString("destinationRandomUniqueIdProfile").equals(edtRemoteID.getText().toString().trim()) && jsonObject1.getString("myRandomUniqueIdProfile").equals(randomUniqueId)) {
-                                                WebrtcUtil.callSingle(NodejsActivity.this, NodejsActivity.this, signalIp,
+                                                WebrtcUtil.callSingle(NodejsActivity.this, signalIp,
                                                         edtRemoteID.getText().toString().trim(),
                                                         true, randomUniqueId, imeiUniqueID, jsonObject.getString("tokenRegistrationFCM"),
                                                         jsonObject.getString("firstName"), firstName, jsonObject1.getString("myCustomName"), lastName, phoneNumber);
                                                 break;
                                             } else if (jsonObject1.getString("destinationRandomUniqueIdProfile").equals(randomUniqueId) && jsonObject1.getString("myRandomUniqueIdProfile").equals(edtRemoteID.getText().toString().trim())) {
-                                                WebrtcUtil.callSingle(NodejsActivity.this, NodejsActivity.this, signalIp,
+                                                WebrtcUtil.callSingle(NodejsActivity.this, signalIp,
                                                         edtRemoteID.getText().toString().trim(),
                                                         true, randomUniqueId, imeiUniqueID, jsonObject.getString("tokenRegistrationFCM"),
                                                         jsonObject.getString("firstName"), firstName, jsonObject1.getString("destinationCustomName"), lastName, phoneNumber);
@@ -372,14 +380,14 @@ public class NodejsActivity extends AppCompatActivity {
                                             }
                                         }
                                     } else {
-                                        WebrtcUtil.callSingle(NodejsActivity.this, NodejsActivity.this, signalIp,
+                                        WebrtcUtil.callSingle(NodejsActivity.this, signalIp,
                                                 edtRemoteID.getText().toString().trim(),
                                                 true, randomUniqueId, imeiUniqueID, jsonObject.getString("tokenRegistrationFCM"),
                                                 jsonObject.getString("firstName"), firstName, firstName, lastName, phoneNumber);
                                     }
                                 } catch (Exception ex) {
                                     try {
-                                        WebrtcUtil.callSingle(NodejsActivity.this, NodejsActivity.this, signalIp,
+                                        WebrtcUtil.callSingle(NodejsActivity.this, signalIp,
                                                 edtRemoteID.getText().toString().trim(),
                                                 true, randomUniqueId, imeiUniqueID, jsonObject.getString("tokenRegistrationFCM"),
                                                 jsonObject.getString("firstName"), firstName, firstName, lastName, phoneNumber);
@@ -462,7 +470,7 @@ public class NodejsActivity extends AppCompatActivity {
                                                 Contact contact = new Contact();
                                                 contact.setName(jsonObject.getString("destinationRandomUniqueIdProfile"));
                                                 if (jsonObject.getString("destinationCustomName").equals("null")) {
-                                                    AndroidNetworking.post(MyApplication.WebApiURL + "/api/Profile/getprofileuniqueid")
+                                                        AndroidNetworking.post(MyApplication.WebApiURL + "/api/Profile/getprofileuniqueid")
                                                             .addQueryParameter("randomUniqueId", jsonObject.getString("destinationRandomUniqueIdProfile"))
                                                             .setTag("getProfileUniqueId")
                                                             .setPriority(Priority.HIGH)
@@ -529,8 +537,6 @@ public class NodejsActivity extends AppCompatActivity {
                                         }
                                     }
 
-//                        Collections.reverse(contacts);
-
                                     spin_kit.setVisibility(View.GONE);
                                     btnProfile.setVisibility(View.VISIBLE);
                                     mTitleRandomUniqueId.setText("ID: " + randomUniqueId);
@@ -593,6 +599,7 @@ public class NodejsActivity extends AppCompatActivity {
                         .getAsJSONObject(new JSONObjectRequestListener() {
                             @Override
                             public void onResponse(JSONObject response) {
+
                                 try {
                                     randomUniqueId = response.getString("randomUniqueId");
                                     tokenRegistrationFCM = response.getString("tokenRegistrationFCM");
@@ -728,6 +735,48 @@ public class NodejsActivity extends AppCompatActivity {
                     PERMISSION_REQUEST_CODE);
         }
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (ChatSingleReceiveActivity.receiveData != null){
+            if (ChatSingleReceiveActivity.receiveData.length() != 0){
+                if (isConnected()) {
+                    for (int i=0; i<contacts.size(); i++){
+                        if (contacts.get(i).getName().equals(ChatSingleReceiveActivity.receiveData))
+                            return;
+                    }
+                    btnRetry.setVisibility(View.GONE);
+                    btnProfile.setVisibility(View.GONE);
+                    spin_kit.setVisibility(View.VISIBLE);
+                    if (imeiUniqueID == null) {
+                        addProfileToServer(getUniqueID());
+                    } else {
+                        getProfileFromServer(imeiUniqueID);
+                    }
+                } else {
+                    btnRetry.setVisibility(View.VISIBLE);
+                    btnProfile.setVisibility(View.GONE);
+                    spin_kit.setVisibility(View.GONE);
+                    Toast.makeText(getApplicationContext(), "please check your connection", Toast.LENGTH_SHORT).show();
+                }
+            }
+            ChatSingleReceiveActivity.receiveData = "";
+        }
+
+    }
+
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//        if (requestCode == 1) {
+//            if(resultCode == Activity.RESULT_OK){
+//                String a = "ad";
+////                String result=data.getStringExtra("result");
+//            }
+//        }
+//    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {

@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -22,6 +23,8 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class MyNotificationManager {
 //    private static final String TAG = "MyNotificationManager";
+
+    private static final String PREF_IMEI_UNIQUE_ID = "PREF_IMEI_UNIQUE_ID";
 
     private Context context;
     private static MyNotificationManager instance;
@@ -94,7 +97,7 @@ public class MyNotificationManager {
         notificationManagerCompat.notify(notificationId, builder.build());
     }
 
-    public void triggerNotificationWithBackStack(Class targetNotificationActivity, String channelId, String title, String text, String destinationRandomUniqueId, int priority, boolean autoCancel, int notificationId, int pendingIntentFlag) {
+    public void triggerNotificationWithBackStack(Class targetNotificationActivity, String channelId, String title, String text, String senderRandomUniqueId, int priority, boolean autoCancel, int notificationId, int pendingIntentFlag) {
 
 
 //        Intent intent = new Intent(context, targetNotificationActivity);
@@ -136,8 +139,14 @@ public class MyNotificationManager {
         //Create an Intent for the BroadcastReceiver
         Intent intentDecline = new Intent(context, HandleDeclineReceiver.class);
         Intent intentAnswer = new Intent(context, HandleAnswerReceiver.class);
-        intentDecline.putExtra("destinationRandomUniqueId", destinationRandomUniqueId);
+        intentAnswer.putExtra("senderRandomUniqueId", senderRandomUniqueId);
+        intentDecline.putExtra("senderRandomUniqueId", senderRandomUniqueId);
         //Create the PendingIntent
+
+        SharedPreferences sharedPrefs = context.getSharedPreferences(PREF_IMEI_UNIQUE_ID, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.putString("senderRandomUniqueId", senderRandomUniqueId);
+        editor.commit();
 
         PendingIntent pIntentDecline = PendingIntent.getBroadcast(context, 0, intentDecline, 0);
         PendingIntent pIntentAnswerCall = PendingIntent.getBroadcast(context, 0, intentAnswer, 0);

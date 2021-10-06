@@ -28,6 +28,11 @@ public class HandleDeclineReceiver extends BroadcastReceiver {
 //    public String randomUniqueId;
     private Socket socketIO = null;
 
+    private SharedPreferences sharedPrefs;
+    private static final String PREF_IMEI_UNIQUE_ID = "PREF_IMEI_UNIQUE_ID";
+
+    public String randomUniqueId;
+
     @Override
     public void onReceive(Context context, Intent intent) {
 //        Toast.makeText(context, "Notification Dialog Closed", Toast.LENGTH_LONG).show();
@@ -37,6 +42,9 @@ public class HandleDeclineReceiver extends BroadcastReceiver {
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         manager.cancel(1);
 
+        sharedPrefs = context.getSharedPreferences(PREF_IMEI_UNIQUE_ID, Context.MODE_PRIVATE);
+        randomUniqueId = sharedPrefs.getString("randomUniqueId", null);
+
         try {
             socketIO = IO.socket("http://136.243.172.245:3001");
         } catch (URISyntaxException e) {
@@ -45,7 +53,8 @@ public class HandleDeclineReceiver extends BroadcastReceiver {
 
         socketIO.connect();
 
-        socketIO.emit("declineCall", intent.getStringExtra("destinationRandomUniqueId") + "-" + "decline");
+        socketIO.emit("declineCall", randomUniqueId + "-" + "decline");
+//        socketIO.emit("declineCall", intent.getStringExtra("senderRandomUniqueId") + "-" + "decline");
 
 //        PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, new Intent(), 0);
 //        NotificationCompat.Builder mb = new NotificationCompat.Builder(context);

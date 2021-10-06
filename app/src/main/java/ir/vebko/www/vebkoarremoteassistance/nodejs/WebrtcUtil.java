@@ -47,7 +47,7 @@ public class WebrtcUtil {
     // private static String WSS = "ws://192.168.1.138:3000";
 
     // one to one
-    public static void callSingle(Activity activity, NodejsActivity nodejsActivity, String wss, String roomId, boolean videoEnable,
+    public static void callSingle(NodejsActivity activity, String wss, String roomId, boolean videoEnable,
                                   String randomUniqueId, String imei, String destinationTokenRegistrationFCM, String destinationCustomName, String myCustomName, String secondCustomName, String lastName, String phoneNumber) {
         if (TextUtils.isEmpty(wss)) {
             wss = WSS;
@@ -80,7 +80,7 @@ public class WebrtcUtil {
                                 JSONObject jsonObjectData = new JSONObject();
 
                                 try {
-                                    nodejsActivity.getContact(jsonObject.getString("destinationCustomName"));
+                                    activity.getContact(jsonObject.getString("destinationCustomName"));
 
                                     jsonObjectProfile.put("to", destinationTokenRegistrationFCM);
                                     jsonObjectProfile.put("collapse_key", "news");
@@ -95,7 +95,7 @@ public class WebrtcUtil {
                                         jsonObjectData.put("body", "");
                                     }
                                     jsonObjectData.put("title", "Incoming Video Call");
-                                    jsonObjectData.put("sender_random_unique_id", roomId);
+                                    jsonObjectData.put("sender_random_unique_id", randomUniqueId);
 //                                    jsonObjectData.put("key_2", "Value for key_2");
 
                                     jsonObjectProfile.put("data", jsonObjectData);
@@ -145,7 +145,7 @@ public class WebrtcUtil {
         WebRTCManager.getInstance().connect(videoEnable ? MediaType.TYPE_VIDEO : MediaType.TYPE_AUDIO, roomId);
     }
 
-    public static void callSingle1(Context activity, String wss, String roomId, boolean videoEnable,
+    public static void callSingle1(Context context, NodejsActivity nodejsActivity, String wss, String roomId, boolean videoEnable,
                                    String randomUniqueId, String imei, String tokenRegistrationFCM, String firstName, String lastName, String phoneNumber) {
         if (TextUtils.isEmpty(wss)) {
             wss = WSS;
@@ -153,7 +153,7 @@ public class WebrtcUtil {
         WebRTCManager.getInstance().init(wss, iceServers, new IConnectEvent() {
             @Override
             public void onSuccess() {
-                ChatSingleReceiveActivity.openActivity(activity, videoEnable, roomId);
+                    ChatSingleReceiveActivity.openActivity(context, nodejsActivity, videoEnable, roomId, randomUniqueId);
             }
 
             @Override

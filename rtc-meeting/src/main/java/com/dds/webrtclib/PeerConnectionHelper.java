@@ -310,7 +310,6 @@ public class PeerConnectionHelper {
         if (viewCallback != null) {
             viewCallback.onCloseWithId(connectionId);
         }
-
     }
 
     public void switchCamera() {
@@ -323,7 +322,6 @@ public class PeerConnectionHelper {
         } else {
             Log.d(TAG, "Will not switch camera, video caputurer is not a camera");
         }
-
     }
 
     public void toggleMute(boolean enable) {
@@ -337,7 +335,6 @@ public class PeerConnectionHelper {
             mAudioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
             mAudioManager.setSpeakerphoneOn(enable);
         }
-
     }
 
     public void exitRoom() {
@@ -389,9 +386,7 @@ public class PeerConnectionHelper {
                 _webSocket = null;
             }
 
-
         });
-
 
     }
 

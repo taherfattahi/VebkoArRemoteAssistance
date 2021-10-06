@@ -13,6 +13,9 @@ import androidx.core.app.NotificationCompat;
 
 import com.androidnetworking.AndroidNetworking;
 
+import org.w3c.dom.Node;
+
+import ir.vebko.www.vebkoarremoteassistance.nodejs.NodejsActivity;
 import ir.vebko.www.vebkoarremoteassistance.nodejs.WebrtcUtil;
 
 
@@ -42,9 +45,10 @@ public class HandleAnswerReceiver extends BroadcastReceiver {
         sharedPrefs = context.getSharedPreferences(PREF_IMEI_UNIQUE_ID, Context.MODE_PRIVATE);
         randomUniqueId = sharedPrefs.getString("randomUniqueId", null);
 
-        WebrtcUtil.callSingle1(context,
+//        WebrtcUtil.callSingle1(context, NodejsActivity.nodejsActivity,
+        WebrtcUtil.callSingle1(context, null,
                 signalIp,
                 randomUniqueId,
-                true, "", "", "", "", "", "");
+                true,  sharedPrefs.getString("senderRandomUniqueId", null), "", "", "", "", "");
     }
 }

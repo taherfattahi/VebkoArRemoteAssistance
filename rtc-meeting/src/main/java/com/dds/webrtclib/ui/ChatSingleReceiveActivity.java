@@ -21,6 +21,7 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -62,6 +63,7 @@ import io.socket.emitter.Emitter;
 
 public class ChatSingleReceiveActivity extends AppCompatActivity {
 
+
     //    private SurfaceViewRenderer local_view;
     private SurfaceViewRenderer remote_view;
     //    private ProxyVideoSink localRender;
@@ -77,28 +79,21 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
     private NotificationManager notificationManager;
 
     public String myRandomUniqueId;
+    public String senderRandomUniqueId;
 
 //    private boolean isAlive = true;
 //    private boolean isAliveTimerFlag = false;
 //    private boolean reCallFlag = false;
-    private static boolean active = false;
+    public static boolean active = false;
+    public static String receiveData = "";
 
     private static Socket socketIO = null;
 //    private Handler handlerHeartBeatChecker;
 //    private Runnable runnableCodeHeartBeatChecker;
 
-//    private Socket mSocket;
-//    {
-//        try {
-////            mSocket = IO.socket("http://185.208.172.104:3001");
-//            mSocket = IO.socket("http://192.168.0.13:3001");
-//        } catch (URISyntaxException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
     public static final String HOST = "136.243.172.245";
     public static final String WebApiURL = "https://vebko.ir:4433";
+    private static int LAUNCH_SECOND_ACTIVITY = 1;
 
     // signalling
     private String signalIp = "ws://136.243.172.245:3000/ws";
@@ -116,14 +111,24 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
                     "test123"),
     };
 
-    public static void openActivity(Context activity, boolean videoEnable, String roomId) {
-        Intent intent = new Intent(activity, ChatSingleReceiveActivity.class);
+    public static void openActivity(Context context, Activity activity, boolean videoEnable, String roomId, String senderRandomUniqueId) {
+        Intent intent;
+//        if (activity != null){
+//            intent = new Intent(activity, ChatSingleReceiveActivity.class);
+//        }else{
+            intent = new Intent(context, ChatSingleReceiveActivity.class);
+//        }
         intent.putExtra("videoEnable", videoEnable);
         intent.putExtra("myRandomUniqueId", roomId);
+        intent.putExtra("senderRandomUniqueId", senderRandomUniqueId);
 //        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        activity.startActivity(intent);
+//        if (activity != null){
+//            activity.startActivity(intent);
+//        }else {
+            context.startActivity(intent);
+//        }
     }
 
     @Override
@@ -144,31 +149,6 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
 //        local_view.setVisibility(View.GONE);
     }
 
-    public void setDistanceFromSickbarReceiver(float value){
-        try{
-            socketIO.emit("onDistanceFromSickbarReceiver", myRandomUniqueId + "-" + value);
-        }catch (Exception ex){
-        }
-    }
-
-    public void setStrokFromSickbarReceiver(float value){
-        try{
-            socketIO.emit("onStrokFromSickbarReceiver", myRandomUniqueId + "-" + value);
-        }catch (Exception ex){
-        }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        active = true;
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        active = false;
-    }
 
 
     int zz = 0;
@@ -178,6 +158,7 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
         Intent intent = getIntent();
         videoEnable = intent.getBooleanExtra("videoEnable", false);
         myRandomUniqueId = intent.getStringExtra("myRandomUniqueId");
+        senderRandomUniqueId = intent.getStringExtra("senderRandomUniqueId");
 
         ChatSingleReceiveFragment chatSingleReceiveFragment = new ChatSingleReceiveFragment();
         replaceFragment(chatSingleReceiveFragment, videoEnable);
@@ -186,13 +167,11 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
 //            local_view = findViewById(R.id.local_view_render);
             remote_view = findViewById(R.id.remote_view_render);
 
-            // 本地图像初始化
 //            local_view.init(rootEglBase.getEglBaseContext(), null);
 //            local_view.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
 //            local_view.setZOrderMediaOverlay(true);
 //            local_view.setMirror(true);
 //            localRender = new ProxyVideoSink();
-            //远端图像初始化
             remote_view.init(rootEglBase.getEglBaseContext(), null);
             remote_view.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_BALANCED);
 //            remote_view.setEnableHardwareScaler(true);
@@ -360,6 +339,39 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
 //        // Start the initial runnable task by posting through the handler
 //        handlerHeartBeatChecker.post(runnableCodeHeartBeatChecker);
 
+    }
+
+    public void setDistanceFromSickbarReceiver(float value){
+        try{
+            socketIO.emit("onDistanceFromSickbarReceiver", myRandomUniqueId + "-" + value);
+        }catch (Exception ex){
+        }
+    }
+
+    public void setStrokFromSickbarReceiver(float value){
+        try{
+            socketIO.emit("onStrokFromSickbarReceiver", myRandomUniqueId + "-" + value);
+        }catch (Exception ex){
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        active = true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        receiveData = senderRandomUniqueId;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        //todo
+        active = false;
     }
 
     public boolean isConnected() {
@@ -667,7 +679,9 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
 
     private void disConnect() {
 
-//        handlerHeartBeatChecker.removeCallbacksAndMessages(runnableCodeHeartBeatChecker);
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra("result","asd");
+        setResult(Activity.RESULT_OK, returnIntent);
 
         manager.exitRoom();
 //        if (localRender != null) {
@@ -689,7 +703,6 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
         }
     }
 
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -701,6 +714,5 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
             }
         }
         manager.joinRoom(getApplicationContext(), rootEglBase);
-
     }
 }
