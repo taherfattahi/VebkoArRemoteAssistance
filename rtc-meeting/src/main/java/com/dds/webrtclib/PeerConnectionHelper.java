@@ -83,8 +83,6 @@ public class PeerConnectionHelper {
 
     public AudioManager mAudioManager;
 
-
-
     enum Role {Caller, Receiver,}
 
     private Role _role;
@@ -124,7 +122,7 @@ public class PeerConnectionHelper {
         viewCallback = callback;
     }
 
-    // ===================================webSocket回调信息=======================================
+    // ===================================webSocket=======================================
 
     public void initContext(Context context, EglBase eglBase) {
         _context = context;
@@ -180,7 +178,6 @@ public class PeerConnectionHelper {
     }
 
     public void onRemoteIceCandidateRemove(String socketId, List<IceCandidate> iceCandidates) {
-        // todo 移除
         executor.execute(() -> Log.d(TAG, "send onRemoteIceCandidateRemove"));
 
     }
@@ -242,10 +239,8 @@ public class PeerConnectionHelper {
                 .createPeerConnectionFactory();
     }
 
-    // 创建本地流
     private void createLocalStream() {
         _localStream = _factory.createLocalMediaStream("ARDAMS");
-        // 音频
         audioSource = _factory.createAudioSource(createAudioConstraints());
         _localAudioTrack = _factory.createAudioTrack(AUDIO_TRACK_ID, audioSource);
         _localStream.addTrack(_localAudioTrack);
@@ -254,9 +249,7 @@ public class PeerConnectionHelper {
 
             //todo
 
-            //创建需要传入设备的名称
             captureAndroid = createVideoCapture();
-            // 视频
             surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", _rootEglBase.getEglBaseContext());
             videoSource = _factory.createVideoSource(captureAndroid.isScreencast());
             if (_mediaType == MediaType.TYPE_MEETING) {
@@ -276,7 +269,6 @@ public class PeerConnectionHelper {
 
     }
 
-    // 创建所有连接
     private void createPeerConnections() {
         for (Object str : _connectionIdArray) {
             Peer peer = new Peer((String) str);
@@ -284,7 +276,6 @@ public class PeerConnectionHelper {
         }
     }
 
-    // 为所有连接添加流
     private void addStreams() {
         Log.v(TAG, "为所有连接添加流");
         for (Map.Entry<String, Peer> entry : _connectionPeerDic.entrySet()) {
@@ -300,7 +291,6 @@ public class PeerConnectionHelper {
 
     }
 
-    // 为所有连接创建offer
     private void createOffers() {
         for (Map.Entry<String, Peer> entry : _connectionPeerDic.entrySet()) {
             _role = Role.Caller;
@@ -310,7 +300,6 @@ public class PeerConnectionHelper {
 
     }
 
-    // 关闭通道流
     private void closePeerConnection(String connectionId) {
         Peer mPeer = _connectionPeerDic.get(connectionId);
         if (mPeer != null) {
@@ -324,15 +313,11 @@ public class PeerConnectionHelper {
 
     }
 
-
-    //**************************************逻辑控制**************************************
-    // 调整摄像头前置后置
     public void switchCamera() {
         if (captureAndroid == null) return;
         if (captureAndroid instanceof CameraVideoCapturer) {
 
             //todo
-
             CameraVideoCapturer cameraVideoCapturer = (CameraVideoCapturer) captureAndroid;
             cameraVideoCapturer.switchCamera(null);
         } else {
@@ -341,7 +326,6 @@ public class PeerConnectionHelper {
 
     }
 
-    // 设置自己静音
     public void toggleMute(boolean enable) {
         if (_localAudioTrack != null) {
             _localAudioTrack.setEnabled(enable);
@@ -350,12 +334,12 @@ public class PeerConnectionHelper {
 
     public void toggleSpeaker(boolean enable) {
         if (mAudioManager != null) {
+            mAudioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
             mAudioManager.setSpeakerphoneOn(enable);
         }
 
     }
 
-    // 退出房间
     public void exitRoom() {
         if (viewCallback != null) {
             viewCallback = null;
@@ -577,7 +561,7 @@ public class PeerConnectionHelper {
         @Override
         public void onCreateSuccess(SessionDescription origSdp) {
             Log.v(TAG, "sdp创建成功       " + origSdp.type);
-            //设置本地的SDP
+            //SDP
 
             String sdpDescription = origSdp.description;
             if (videoEnable) {
@@ -592,23 +576,23 @@ public class PeerConnectionHelper {
 
         @Override
         public void onSetSuccess() {
-            Log.v(TAG, "sdp连接成功        " + pc.signalingState().toString());
+            Log.v(TAG, "sdp        " + pc.signalingState().toString());
 
             if (pc.signalingState() == PeerConnection.SignalingState.HAVE_REMOTE_OFFER) {
                 pc.createAnswer(Peer.this, offerOrAnswerConstraint());
             } else if (pc.signalingState() == PeerConnection.SignalingState.HAVE_LOCAL_OFFER) {
-                //判断连接状态为本地发送offer
+                //offer
                 if (_role == Role.Receiver) {
-                    //接收者，发送Answer
+                    //Answer
                     _webSocket.sendAnswer(socketId, pc.getLocalDescription().description);
 
                 } else if (_role == Role.Caller) {
-                    //发送者,发送自己的offer
+                    //offer
                     _webSocket.sendOffer(socketId, pc.getLocalDescription().description);
                 }
 
             } else if (pc.signalingState() == PeerConnection.SignalingState.STABLE) {
-                // Stable 稳定的
+                // Stable
                 if (_role == Role.Receiver) {
                     _webSocket.sendAnswer(socketId, pc.getLocalDescription().description);
 
@@ -628,12 +612,11 @@ public class PeerConnectionHelper {
         }
 
 
-        //初始化 RTCPeerConnection 连接管道
+        //RTCPeerConnection
         private PeerConnection createPeerConnection() {
             if (_factory == null) {
                 _factory = createConnectionFactory();
             }
-            // 管道连接抽象类实现方法
             PeerConnection.RTCConfiguration rtcConfig = new PeerConnection.RTCConfiguration(ICEServers);
             return _factory.createPeerConnection(rtcConfig, this);
         }

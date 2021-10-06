@@ -874,6 +874,7 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
             manager.joinRoom(getApplicationContext(), rootEglBase);
         }
 
+//        manager.toggleSpeaker(true);
     }
 
     private void replaceFragment(Fragment fragment, boolean videoEnable) {
@@ -954,7 +955,6 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
 
     public void toggleSpeaker(boolean enable) {
         manager.toggleSpeaker(enable);
-
     }
 
     @Override
