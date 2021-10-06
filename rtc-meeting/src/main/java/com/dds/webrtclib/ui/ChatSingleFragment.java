@@ -27,11 +27,6 @@ import com.flask.colorpicker.builder.ColorPickerDialogBuilder;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
-/**
- * 单聊控制界面
- * Created by dds on 2019/1/7.
- * android_shuai@163.com
- */
 public class ChatSingleFragment extends Fragment {
 
     public View rootView;

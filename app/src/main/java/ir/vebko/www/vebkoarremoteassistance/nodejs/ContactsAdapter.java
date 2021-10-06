@@ -28,9 +28,10 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
     private Button btnAggreeDialog;
     private Button btnCncelDialog;
     private EditText edtCustomName;
-    private int recyclerClickPosition;
 
+    private int recyclerClickPosition;
     private int row_index;
+
     // Pass in the contact array into the constructor
     public ContactsAdapter(List<Contact> contacts, NodejsActivity nodejsActivity) {
         mContacts = contacts;

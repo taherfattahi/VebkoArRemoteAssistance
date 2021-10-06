@@ -23,14 +23,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ir.alirezabdn.wp7progress.WP7ProgressBar
-            android:id="@+id/prgToolbar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            app:indicatorColor="#FF1744"
-            app:interval="50"/>
-
         <Button
             android:id="@+id/btnRetry"
             android:layout_width="wrap_content"
@@ -121,5 +113,18 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnArCore" />
+
+    <com.github.ybq.android.spinkit.SpinKitView
+        android:id="@+id/spin_kit"
+        style="@style/SpinKitView.Large.Circle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        app:SpinKit_Color="@color/colorPrimary"
+        app:SpinKit_Style="Wave"
+        app:layout_constraintBottom_toBottomOf="@+id/rvDestinationUniqueId"
+        app:layout_constraintEnd_toEndOf="@+id/rvDestinationUniqueId"
+        app:layout_constraintStart_toStartOf="@+id/rvDestinationUniqueId"
+        app:layout_constraintTop_toTopOf="@+id/toolbar_top" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

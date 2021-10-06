@@ -76,7 +76,7 @@ dependencies {
 
     implementation 'com.google.firebase:firebase-messaging:20.1.0'
 
-    implementation 'com.github.shadowalker77:wp7progressbar:1.1.0'
+    implementation 'com.github.ybq:Android-SpinKit:1.4.0'
 
     // nodejs
     implementation project(':rtc-meeting')

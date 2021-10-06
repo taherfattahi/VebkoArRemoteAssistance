@@ -7,10 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
@@ -30,12 +27,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.common.Priority;
 import com.androidnetworking.error.ANError;
-import com.androidnetworking.interfaces.JSONArrayRequestListener;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
-import com.dds.webrtclib.ui.ChatSingleActivity;
+import com.github.ybq.android.spinkit.SpinKitView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.button.MaterialButton;
 import com.google.ar.core.ArCoreApk;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
@@ -45,20 +40,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.InetAddress;
-import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
-import javax.net.ssl.HttpsURLConnection;
-
-import ir.alirezabdn.wp7progress.WP7ProgressBar;
 import ir.vebko.www.vebkoarremoteassistance.MyApplication;
 import ir.vebko.www.vebkoarremoteassistance.R;
 import ir.vebko.www.vebkoarremoteassistance.vuforia.ImagePlayback;
@@ -81,11 +65,10 @@ public class NodejsActivity extends AppCompatActivity {
     private String signalIp = "ws://136.243.172.245:3000/ws";
 
     private Button btnRetry, btnProfile, btnVuforia, btnArCore;
-
     private Toolbar toolbar;
     private TextView mTitleRandomUniqueId;
-    private WP7ProgressBar progressBar;
     private EditText edtRemoteID;
+    private SpinKitView spin_kit;
 
     private boolean isGetDataFromServer;
     private boolean installRequested;
@@ -106,9 +89,7 @@ public class NodejsActivity extends AppCompatActivity {
 
         if (isConnected()) {
             btnRetry.setVisibility(View.GONE);
-            progressBar.setVisibility(View.VISIBLE);
             btnProfile.setVisibility(View.VISIBLE);
-            progressBar.showProgressBar();
             if (imeiUniqueID == null) {
                 addProfileToServer(getUniqueID());
             } else {
@@ -116,9 +97,8 @@ public class NodejsActivity extends AppCompatActivity {
             }
         } else {
             btnRetry.setVisibility(View.VISIBLE);
-            progressBar.setVisibility(View.GONE);
             btnProfile.setVisibility(View.GONE);
-            progressBar.hideProgressBar();
+            spin_kit.setVisibility(View.GONE);
             Toast.makeText(getApplicationContext(), "please check your connection", Toast.LENGTH_SHORT).show();
         }
 
@@ -128,13 +108,13 @@ public class NodejsActivity extends AppCompatActivity {
 
         toolbar = (Toolbar) findViewById(R.id.toolbar_top);
         mTitleRandomUniqueId = (TextView) toolbar.findViewById(R.id.toolbar_title);
-        progressBar = findViewById(R.id.prgToolbar);
         btnArCore = findViewById(R.id.btnArCore);
         btnVuforia = findViewById(R.id.btnVuforia);
         btnRetry = findViewById(R.id.btnRetry);
         btnProfile = findViewById(R.id.btnProfile);
         edtRemoteID = findViewById(R.id.edtRemoteID);
         rvDestinationUniqueId = (RecyclerView) findViewById(R.id.rvDestinationUniqueId);
+        spin_kit = findViewById(R.id.spin_kit);
 
         randomUniqueId = sharedPrefs.getString("randomUniqueId", null);
         imeiUniqueID = sharedPrefs.getString(PREF_IMEI_UNIQUE_ID, null);
@@ -194,9 +174,7 @@ public class NodejsActivity extends AppCompatActivity {
                 btnRetry.setEnabled(false);
                 if (isConnected()) {
                     btnRetry.setVisibility(View.GONE);
-                    btnProfile.setVisibility(View.VISIBLE);
-                    progressBar.setVisibility(View.VISIBLE);
-                    progressBar.showProgressBar();
+                    spin_kit.setVisibility(View.VISIBLE);
                     if (imeiUniqueID == null) {
                         addProfileToServer(getUniqueID());
                     } else {
@@ -205,8 +183,7 @@ public class NodejsActivity extends AppCompatActivity {
                 } else {
                     btnRetry.setVisibility(View.VISIBLE);
                     btnProfile.setVisibility(View.GONE);
-                    progressBar.setVisibility(View.GONE);
-                    progressBar.hideProgressBar();
+                    spin_kit.setVisibility(View.GONE);
                     Toast.makeText(getApplicationContext(), "please check your connection", Toast.LENGTH_SHORT).show();
                 }
                 btnRetry.setEnabled(true);
@@ -239,7 +216,6 @@ public class NodejsActivity extends AppCompatActivity {
             }
         });
 
-
 //        // Create the Handler object (on the main thread by default)
 //        Handler handler = new Handler();
 //        // Define the code block to be executed
@@ -255,7 +231,6 @@ public class NodejsActivity extends AppCompatActivity {
 //        };
 //        // Start the initial runnable task by posting through the handler
 //        handler.post(runnableCode);
-
 
     }
 
@@ -295,13 +270,13 @@ public class NodejsActivity extends AppCompatActivity {
             jsonObjectProfile.put("myRandomUniqueIdProfile", randomUniqueId);
             jsonObjectProfile.put("destinationRandomUniqueIdProfile", contacts.get(position).getName());
             jsonObjectProfile.put("myCustomName", customName);
-            jsonObjectProfile.put("destinationCustomName", "");
+            jsonObjectProfile.put("destinationCustomName", "null");
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        AndroidNetworking.patch(MyApplication.WebApiURL + "/api/Contact/updatecontactcustomname")
-                .addJSONObjectBody(jsonObjectProfile) // posting json
+        AndroidNetworking.post(MyApplication.WebApiURL + "/api/Contact/updatecontactcustomname")
+                .addJSONObjectBody(jsonObjectProfile)
                 .setTag("UpdateContactCustomName")
                 .setPriority(Priority.HIGH)
                 .build()
@@ -362,6 +337,8 @@ public class NodejsActivity extends AppCompatActivity {
             ex.printStackTrace();
         }
 
+        btnArCore.setEnabled(false);
+
         if (isGetDataFromServer) {
             if (edtRemoteID.getText().toString().trim().length() != 0 && !edtRemoteID.getText().toString().trim().equals(randomUniqueId)) {
                 AndroidNetworking.post(MyApplication.WebApiURL + "/api/Profile/callingprofile")
@@ -411,6 +388,7 @@ public class NodejsActivity extends AppCompatActivity {
                                     }
                                 }
 
+                                btnArCore.setEnabled(true);
                             }
 
                             @Override
@@ -425,13 +403,15 @@ public class NodejsActivity extends AppCompatActivity {
                                 }else {
                                     Toast.makeText(getApplicationContext(), "please check your connection", Toast.LENGTH_SHORT).show();
                                 }
-
+                                btnArCore.setEnabled(true);
                             }
                         });
             } else {
+                btnArCore.setEnabled(true);
                 Toast.makeText(getApplicationContext(), "please insert remote ID", Toast.LENGTH_SHORT).show();
             }
         } else {
+            btnArCore.setEnabled(true);
             Toast.makeText(getApplicationContext(), "please check your connection", Toast.LENGTH_SHORT).show();
         }
 
@@ -551,8 +531,7 @@ public class NodejsActivity extends AppCompatActivity {
 
 //                        Collections.reverse(contacts);
 
-                                    progressBar.hideProgressBar();
-                                    progressBar.setVisibility(View.GONE);
+                                    spin_kit.setVisibility(View.GONE);
                                     btnProfile.setVisibility(View.VISIBLE);
                                     mTitleRandomUniqueId.setText("ID: " + randomUniqueId);
 
@@ -707,8 +686,7 @@ public class NodejsActivity extends AppCompatActivity {
                                         }
                                     }
 
-                                    progressBar.hideProgressBar();
-                                    progressBar.setVisibility(View.GONE);
+                                    spin_kit.setVisibility(View.GONE);
                                     btnProfile.setVisibility(View.VISIBLE);
                                     mTitleRandomUniqueId.setText("ID: " + randomUniqueId);
 
