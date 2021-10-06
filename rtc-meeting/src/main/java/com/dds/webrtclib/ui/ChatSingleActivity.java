@@ -249,6 +249,7 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
 
         socketIO.on(Socket.EVENT_CONNECT, onConnect);
         socketIO.on("positionPusher", onNewMessage);
+        socketIO.on("onAcceptAnswerPusher", onNewMessageOnAcceptAnswer);
         socketIO.on("declineCallPusher", onNewMessageDeclineCallPusher);
 //        socketIO.on("heartBeatPusher", onHeartBeatMessage);
         socketIO.on("clearDrawFunc", onNewMessageClearDrawFunc);
@@ -442,6 +443,23 @@ public class ChatSingleActivity extends AppCompatActivity implements SurfaceHold
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+    };
+
+    private Emitter.Listener onNewMessageOnAcceptAnswer = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    String a = (String) args[0];
+                    String[] b = a.split("-");
+
+                    if (b[0].equals(destinationRandomUniqueId)) {
+                        Toast.makeText(getApplicationContext(), "Accept Answer" , Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
         }
     };
 

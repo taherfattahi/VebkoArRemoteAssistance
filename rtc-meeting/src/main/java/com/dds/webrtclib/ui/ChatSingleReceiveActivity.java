@@ -560,6 +560,9 @@ public class ChatSingleReceiveActivity extends AppCompatActivity {
 
                             }
                         });
+
+                socketIO.emit("onAcceptAnswer", myRandomUniqueId + "-" + "acceptAnswer");
+
             }
 
             @Override
