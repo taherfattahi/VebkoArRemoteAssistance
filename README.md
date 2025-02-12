@@ -6,11 +6,6 @@ Vebko AR Remote Assistance is an Android application that enables remote support
 </a>
 
 ## Features
-- Profile Management:
-    - Generates a unique identifier using Android’s secure ID or a random UUID.
-    - Manages user profile data (first name, last name, phone number) and stores it locally via SharedPreferences.
-    - Retrieves and updates user profile information from a remote server.
-
 - Augmented Reality (AR) Calling:
     - Uses Google ARCore for AR video calling.
     - Checks for ARCore installation and prompts the user to install if necessary.
@@ -23,6 +18,11 @@ Vebko AR Remote Assistance is an Android application that enables remote support
     - Initiates one-to-one calls using WebRTC.
     - Interacts with a NodeJS signaling server through websockets and RESTful APIs.
 
+- Profile Management:
+    - Generates a unique identifier using Android’s secure ID or a random UUID.
+    - Manages user profile data (first name, last name, phone number) and stores it locally via SharedPreferences.
+    - Retrieves and updates user profile information from a remote server.
+      
 - Contact Management:
     - Maintains a list of contacts with unique identifiers.
     - Supports adding custom names to contacts and copying/sharing unique IDs.
