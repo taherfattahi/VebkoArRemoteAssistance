@@ -1,7 +1,9 @@
 ## Vebko AR Remote Assistance
 Vebko AR Remote Assistance is an Android application that enables remote support through augmented reality and real-time video calling. The app integrates ARCore for AR-based calling, Vuforia for image playback, and uses WebRTC for communication. It also leverages Firebase for push notifications and uses a NodeJS-based signaling server to manage calls.
 
-[![IMAGE](images/arcore.png)](https://youtube.com/shorts/86Hc3CfxM2w)
+<a href="https://youtube.com/shorts/86Hc3CfxM2w">
+  <img src="images/arcore.png" alt="IMAGE" width="300">
+</a>
 
 ## Features
 - Profile Management:
